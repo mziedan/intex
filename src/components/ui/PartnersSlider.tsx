@@ -14,45 +14,97 @@ interface PartnersSliderProps {
 
 const PartnersSlider = ({ partners, speed = 30, className }: PartnersSliderProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !scrollerRef.current) return;
     
-    const container = containerRef.current;
-    const originalContent = container.innerHTML;
+    const scroller = scrollerRef.current;
     
-    // Duplicate content for seamless looping
-    container.innerHTML = originalContent + originalContent;
+    // Clone the content for a seamless infinite loop
+    const content = Array.from(scroller.children);
+    content.forEach(item => {
+      const clone = item.cloneNode(true);
+      scroller.appendChild(clone);
+    });
     
-    const scrollWidth = container.scrollWidth / 2;
-    let currentPosition = 0;
-    
-    const animate = () => {
-      currentPosition -= 0.5; // Adjust speed here (higher = faster)
-      
-      // Reset position once we've scrolled through half the content
-      if (currentPosition <= -scrollWidth) {
-        currentPosition = 0;
-      }
-      
-      if (container) {
-        container.style.transform = `translateX(${currentPosition}px)`;
-      }
-      
-      requestAnimationFrame(animate);
+    // Calculate the animation duration based on the content width and desired speed
+    const calculateAnimationDuration = () => {
+      const scrollWidth = scroller.scrollWidth / 2;
+      // Slower speed means longer duration (more seconds to travel the same distance)
+      const duration = scrollWidth / speed;
+      return duration;
     };
     
-    const animationId = requestAnimationFrame(animate);
+    let animationDuration = calculateAnimationDuration();
+    
+    // Set the animation parameters
+    scroller.style.animationDuration = `${animationDuration}s`;
+    scroller.style.animationTimingFunction = 'linear';
+    scroller.style.animationIterationCount = 'infinite';
+    scroller.style.animationName = 'scroll';
+    
+    // Create the keyframe animation
+    const keyframes = `
+      @keyframes scroll {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-50%);
+        }
+      }
+    `;
+    
+    // Add the keyframe animation to the document
+    const styleSheet = document.createElement('style');
+    styleSheet.type = 'text/css';
+    styleSheet.id = 'partnerSliderKeyframes';
+    styleSheet.appendChild(document.createTextNode(keyframes));
+    document.head.appendChild(styleSheet);
+    
+    // Handle window resize
+    const handleResize = () => {
+      animationDuration = calculateAnimationDuration();
+      scroller.style.animationDuration = `${animationDuration}s`;
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    // Pause animation when user hovers
+    const handleMouseEnter = () => {
+      scroller.style.animationPlayState = 'paused';
+    };
+    
+    const handleMouseLeave = () => {
+      scroller.style.animationPlayState = 'running';
+    };
+    
+    containerRef.current.addEventListener('mouseenter', handleMouseEnter);
+    containerRef.current.addEventListener('mouseleave', handleMouseLeave);
     
     return () => {
-      cancelAnimationFrame(animationId);
+      window.removeEventListener('resize', handleResize);
+      if (containerRef.current) {
+        containerRef.current.removeEventListener('mouseenter', handleMouseEnter);
+        containerRef.current.removeEventListener('mouseleave', handleMouseLeave);
+      }
+      
+      // Remove the style sheet
+      const styleElement = document.getElementById('partnerSliderKeyframes');
+      if (styleElement) {
+        styleElement.remove();
+      }
     };
-  }, [partners]);
+  }, [partners, speed]);
   
   return (
-    <div className={cn("w-full overflow-hidden", className)}>
+    <div 
+      className={cn("w-full overflow-hidden", className)}
+      ref={containerRef}
+    >
       <div 
-        ref={containerRef}
+        ref={scrollerRef}
         className="flex items-center"
         style={{ willChange: 'transform' }}
       >

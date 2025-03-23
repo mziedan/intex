@@ -15,6 +15,14 @@ import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
+// Import Admin Pages
+import AdminCategories from "./pages/admin/Categories";
+import AdminCourses from "./pages/admin/Courses";
+import AdminSessions from "./pages/admin/Sessions";
+import AdminRegistrations from "./pages/admin/Registrations";
+import AdminUsers from "./pages/admin/Users";
+import AdminBrochure from "./pages/admin/Brochure";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -35,6 +43,15 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/admin" element={<Admin />} />
+              
+              {/* Admin Panel Routes */}
+              <Route path="/admin/categories" element={<AdminCategories />} />
+              <Route path="/admin/courses" element={<AdminCourses />} />
+              <Route path="/admin/sessions" element={<AdminSessions />} />
+              <Route path="/admin/registrations" element={<AdminRegistrations />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/brochure" element={<AdminBrochure />} />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

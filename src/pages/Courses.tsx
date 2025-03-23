@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Grid3X3, List } from 'lucide-react';
+import { ArrowLeft, Grid3X3, List, Calendar, MapPin } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CategoryCard from '@/components/ui/CategoryCard';

@@ -14,6 +14,7 @@ const ImageSlider = ({ slides, autoplaySpeed = 5000, className }: ImageSliderPro
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const autoplayTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
 
   const nextSlide = () => {
     if (isAnimating) return;
@@ -50,28 +51,33 @@ const ImageSlider = ({ slides, autoplaySpeed = 5000, className }: ImageSliderPro
 
   // Set up autoplay
   useEffect(() => {
-    if (autoplaySpeed > 0) {
-      autoplayTimerRef.current = setInterval(nextSlide, autoplaySpeed);
-    }
+    const startAutoplay = () => {
+      if (autoplaySpeed > 0 && !isPaused) {
+        clearInterval(autoplayTimerRef.current as NodeJS.Timeout);
+        autoplayTimerRef.current = setInterval(nextSlide, autoplaySpeed);
+      }
+    };
     
+    startAutoplay();
+    
+    // Cleanup function
     return () => {
       if (autoplayTimerRef.current) {
         clearInterval(autoplayTimerRef.current);
       }
     };
-  }, [autoplaySpeed, currentSlide]);
+  }, [autoplaySpeed, isPaused, currentSlide]);
 
   // Pause autoplay on hover
   const pauseAutoplay = () => {
+    setIsPaused(true);
     if (autoplayTimerRef.current) {
       clearInterval(autoplayTimerRef.current);
     }
   };
 
   const resumeAutoplay = () => {
-    if (autoplaySpeed > 0) {
-      autoplayTimerRef.current = setInterval(nextSlide, autoplaySpeed);
-    }
+    setIsPaused(false);
   };
 
   return (

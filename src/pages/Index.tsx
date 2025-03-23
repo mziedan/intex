@@ -6,6 +6,7 @@ import ImageSlider from '@/components/ui/ImageSlider';
 import CategoryCard from '@/components/ui/CategoryCard';
 import CourseCard from '@/components/ui/CourseCard';
 import StatCounter from '@/components/ui/StatCounter';
+import PartnersSlider from '@/components/ui/PartnersSlider';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { heroSlides, statistics, partners, companyInfo } from '@/utils/mockData';
@@ -57,7 +58,7 @@ const Index = () => {
       <main className="flex-grow pt-16">
         {/* Hero Section */}
         <section className="relative">
-          <ImageSlider slides={heroSlides} />
+          <ImageSlider slides={heroSlides} autoplaySpeed={5000} />
         </section>
         
         {/* About Section */}
@@ -205,23 +206,10 @@ const Index = () => {
               </p>
             </div>
             
-            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-              {partners.map((partner, index) => (
-                <div 
-                  key={partner.id}
-                  className={`transition-all duration-500 delay-${index * 100} ${
-                    visibleElements.partners 
-                      ? 'opacity-100 scale-100' 
-                      : 'opacity-0 scale-95'
-                  }`}
-                >
-                  <img 
-                    src={partner.logo} 
-                    alt={partner.name} 
-                    className="h-16 md:h-20 object-contain grayscale hover:grayscale-0 transition-all duration-300"
-                  />
-                </div>
-              ))}
+            <div className={`transition-all duration-500 ${
+              visibleElements.partners ? 'opacity-100' : 'opacity-0'
+            }`}>
+              <PartnersSlider partners={partners} />
             </div>
           </div>
         </section>

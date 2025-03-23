@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Menu, X, Phone, FileText, ChevronDown } from 'lucide-react';
+import { Search, Menu, X, Phone, FileText, ChevronDown, LogIn, UserCircle } from 'lucide-react';
 import { useCourses } from '@/context/CourseContext';
+import { useAuth } from '@/context/AuthContext';
 import { companyInfo } from '@/utils/mockData';
 
 const Header = () => {
@@ -12,9 +13,11 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   
   const location = useLocation();
   const { categories, searchCourses } = useCourses();
+  const { user, isAdmin, logout } = useAuth();
 
   // Handle scroll effect
   useEffect(() => {
@@ -31,6 +34,7 @@ const Header = () => {
     setIsMobileMenuOpen(false);
     setIsSearchOpen(false);
     setIsCategoryMenuOpen(false);
+    setIsUserMenuOpen(false);
   }, [location.pathname]);
 
   // Handle search
@@ -140,6 +144,51 @@ const Header = () => {
               Download Brochure
             </a>
             
+            {/* Auth Buttons (conditionally rendered) */}
+            {user ? (
+              <div className="relative">
+                <button 
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center text-sm font-medium text-gray-700 hover:text-brand-900 transition-colors"
+                >
+                  <UserCircle size={20} className="mr-2" />
+                  <span>{user.name.split(' ')[0]}</span>
+                  <ChevronDown size={16} className="ml-1" />
+                </button>
+                
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        Admin Dashboard
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        logout();
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center text-sm font-medium text-gray-700 hover:text-brand-900 transition-colors"
+              >
+                <LogIn size={18} className="mr-2" />
+                Login / Register
+              </Link>
+            )}
+            
             {/* Search Button */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
@@ -152,6 +201,22 @@ const Header = () => {
 
           {/* Mobile Menu Button */}
           <div className="flex items-center space-x-4 lg:hidden">
+            {user ? (
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="text-gray-700 hover:text-brand-900 transition-colors"
+              >
+                <UserCircle size={22} />
+              </button>
+            ) : (
+              <Link 
+                to="/login"
+                className="text-gray-700 hover:text-brand-900 transition-colors"
+              >
+                <LogIn size={22} />
+              </Link>
+            )}
+            
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
               className="text-gray-700 hover:text-brand-900 transition-colors"
@@ -229,6 +294,17 @@ const Header = () => {
             >
               Contact Us
             </Link>
+            
+            {isAdmin && (
+              <Link 
+                to="/admin" 
+                className={`text-base font-medium ${
+                  location.pathname === '/admin' ? 'text-brand-900' : 'text-gray-700'
+                }`}
+              >
+                Admin Dashboard
+              </Link>
+            )}
           </nav>
           
           <div className="pt-4 border-t border-gray-200 space-y-4">
@@ -247,9 +323,42 @@ const Header = () => {
               <FileText size={16} className="mr-2" />
               Download Brochure
             </a>
+            
+            {user && (
+              <button
+                onClick={logout}
+                className="w-full text-left text-sm text-gray-700 hover:text-brand-900 py-2"
+              >
+                Sign Out
+              </button>
+            )}
           </div>
         </div>
       </div>
+
+      {/* User Menu for Mobile */}
+      {user && isUserMenuOpen && (
+        <div className="lg:hidden fixed top-16 right-4 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => setIsUserMenuOpen(false)}
+            >
+              Admin Dashboard
+            </Link>
+          )}
+          <button
+            onClick={() => {
+              logout();
+              setIsUserMenuOpen(false);
+            }}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          >
+            Sign Out
+          </button>
+        </div>
+      )}
 
       {/* Search Overlay */}
       <div 

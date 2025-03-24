@@ -60,7 +60,7 @@ const CourseForm = () => {
     defaultValues: {
       title: course?.title || "",
       shortDescription: course?.shortDescription || "",
-      description: course?.description || "",
+      description: course?.fullDescription || "", // Changed from description to fullDescription
       category: course?.category || "",
       subcategory: course?.subcategory || "",
       price: course?.price?.toString() || "",

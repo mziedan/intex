@@ -1,3 +1,4 @@
+
 export interface Category {
   id: string;
   name: string;
@@ -19,6 +20,8 @@ export interface CourseSession {
   startDate: string;
   endDate: string;
   location: string;
+  capacity?: number;
+  registrations?: number;
 }
 
 export interface Course {
@@ -26,7 +29,7 @@ export interface Course {
   title: string;
   slug: string;
   shortDescription: string;
-  fullDescription: string;
+  fullDescription: string; // Note this is fullDescription, not description
   image: string;
   category: string;
   subcategory: string;
@@ -156,7 +159,7 @@ export const courses: Course[] = [
     slug: "advanced-leadership-skills",
     title: "Advanced Leadership Skills",
     shortDescription: "Develop the skills needed to lead teams effectively in today's dynamic business environment.",
-    description: `This comprehensive leadership program is designed for managers who want to enhance their leadership capabilities. Participants will learn advanced techniques for team motivation, conflict resolution, and strategic decision-making.
+    fullDescription: `This comprehensive leadership program is designed for managers who want to enhance their leadership capabilities. Participants will learn advanced techniques for team motivation, conflict resolution, and strategic decision-making.
 
 The course covers:
 - Strategic leadership thinking
@@ -178,24 +181,24 @@ By the end of this training, participants will be equipped with practical tools 
     sessions: [
       {
         id: "session1",
-        startDate: new Date(2023, 11, 4),
-        endDate: new Date(2023, 11, 6),
+        startDate: "2023-12-04", // Changed from Date objects to string format
+        endDate: "2023-12-06",
         location: "New York City",
         capacity: 25,
         registrations: 18
       },
       {
         id: "session2",
-        startDate: new Date(2024, 1, 15),
-        endDate: new Date(2024, 1, 17),
+        startDate: "2024-02-15",
+        endDate: "2024-02-17",
         location: "San Francisco",
         capacity: 25,
         registrations: 12
       },
       {
         id: "session3",
-        startDate: new Date(2024, 3, 8),
-        endDate: new Date(2024, 3, 10),
+        startDate: "2024-04-08",
+        endDate: "2024-04-10",
         location: "Chicago",
         capacity: 25,
         registrations: 5
@@ -207,7 +210,7 @@ By the end of this training, participants will be equipped with practical tools 
     slug: "project-management-fundamentals",
     title: "Project Management Fundamentals",
     shortDescription: "Master the essential skills and methodologies required to successfully manage projects of any size.",
-    description: "A comprehensive introduction to project management principles and practices. Learn how to initiate, plan, execute, monitor, and close projects effectively. This course covers the core project management knowledge areas including scope, time, cost, quality, resources, communication, risk, procurement, and stakeholder management.",
+    fullDescription: "A comprehensive introduction to project management principles and practices. Learn how to initiate, plan, execute, monitor, and close projects effectively. This course covers the core project management knowledge areas including scope, time, cost, quality, resources, communication, risk, procurement, and stakeholder management.",
     price: 899,
     duration: "2 days",
     level: "Beginner",
@@ -218,16 +221,16 @@ By the end of this training, participants will be equipped with practical tools 
     sessions: [
       {
         id: "session4",
-        startDate: new Date(2023, 11, 11),
-        endDate: new Date(2023, 11, 12),
+        startDate: "2023-12-11",
+        endDate: "2023-12-12",
         location: "Online",
         capacity: 30,
         registrations: 25
       },
       {
         id: "session5",
-        startDate: new Date(2024, 0, 22),
-        endDate: new Date(2024, 0, 23),
+        startDate: "2024-01-22",
+        endDate: "2024-01-23",
         location: "Online",
         capacity: 30,
         registrations: 14
@@ -239,7 +242,7 @@ By the end of this training, participants will be equipped with practical tools 
     slug: "data-analysis-with-python",
     title: "Data Analysis with Python",
     shortDescription: "Learn how to use Python for data analysis, visualization, and interpretation.",
-    description: "This hands-on course teaches you how to use Python for data analysis. You'll learn how to import, clean, transform, and visualize data using popular libraries like Pandas, NumPy, and Matplotlib. By the end of the course, you'll be able to build complex data analysis pipelines and extract meaningful insights from real-world datasets.",
+    fullDescription: "This hands-on course teaches you how to use Python for data analysis. You'll learn how to import, clean, transform, and visualize data using popular libraries like Pandas, NumPy, and Matplotlib. By the end of the course, you'll be able to build complex data analysis pipelines and extract meaningful insights from real-world datasets.",
     price: 1199,
     duration: "4 days",
     level: "Intermediate",
@@ -250,16 +253,16 @@ By the end of this training, participants will be equipped with practical tools 
     sessions: [
       {
         id: "session6",
-        startDate: new Date(2023, 11, 18),
-        endDate: new Date(2023, 11, 21),
+        startDate: "2023-12-18",
+        endDate: "2023-12-21",
         location: "Boston",
         capacity: 20,
         registrations: 15
       },
       {
         id: "session7",
-        startDate: new Date(2024, 2, 4),
-        endDate: new Date(2024, 2, 7),
+        startDate: "2024-03-04",
+        endDate: "2024-03-07",
         location: "Online",
         capacity: 35,
         registrations: 10
@@ -271,7 +274,7 @@ By the end of this training, participants will be equipped with practical tools 
     slug: "cybersecurity-essentials",
     title: "Cybersecurity Essentials",
     shortDescription: "Learn the fundamentals of cybersecurity to protect your organization from digital threats.",
-    description: "This course provides a solid foundation in cybersecurity principles and practices. Participants will learn about common cyber threats, vulnerability assessment, risk management, and defense strategies. The course also covers security policies, compliance requirements, and incident response.",
+    fullDescription: "This course provides a solid foundation in cybersecurity principles and practices. Participants will learn about common cyber threats, vulnerability assessment, risk management, and defense strategies. The course also covers security policies, compliance requirements, and incident response.",
     price: 999,
     duration: "2 days",
     level: "Beginner",
@@ -282,24 +285,24 @@ By the end of this training, participants will be equipped with practical tools 
     sessions: [
       {
         id: "session8",
-        startDate: new Date(2024, 0, 8),
-        endDate: new Date(2024, 0, 9),
+        startDate: "2024-01-08",
+        endDate: "2024-01-09",
         location: "Washington DC",
         capacity: 25,
         registrations: 22
       },
       {
         id: "session9",
-        startDate: new Date(2024, 2, 18),
-        endDate: new Date(2024, 2, 19),
+        startDate: "2024-03-18",
+        endDate: "2024-03-19",
         location: "Online",
         capacity: 30,
         registrations: 5
       },
       {
         id: "session10",
-        startDate: new Date(2024, 4, 13),
-        endDate: new Date(2024, 4, 14),
+        startDate: "2024-05-13",
+        endDate: "2024-05-14",
         location: "Austin",
         capacity: 25,
         registrations: 0
@@ -311,7 +314,7 @@ By the end of this training, participants will be equipped with practical tools 
     slug: "strategic-marketing",
     title: "Strategic Marketing",
     shortDescription: "Develop and implement effective marketing strategies that drive business growth.",
-    description: "This course provides a comprehensive overview of strategic marketing principles and practices. Learn how to analyze market opportunities, develop effective marketing strategies, and create compelling marketing plans. Topics include market research, segmentation, targeting, positioning, product development, pricing, distribution, and promotion.",
+    fullDescription: "This course provides a comprehensive overview of strategic marketing principles and practices. Learn how to analyze market opportunities, develop effective marketing strategies, and create compelling marketing plans. Topics include market research, segmentation, targeting, positioning, product development, pricing, distribution, and promotion.",
     price: 899,
     duration: "2 days",
     level: "Intermediate",
@@ -322,16 +325,16 @@ By the end of this training, participants will be equipped with practical tools 
     sessions: [
       {
         id: "session11",
-        startDate: new Date(2023, 11, 14),
-        endDate: new Date(2023, 11, 15),
+        startDate: "2023-12-14",
+        endDate: "2023-12-15",
         location: "Chicago",
         capacity: 25,
         registrations: 20
       },
       {
         id: "session12",
-        startDate: new Date(2024, 3, 22),
-        endDate: new Date(2024, 3, 23),
+        startDate: "2024-04-22",
+        endDate: "2024-04-23",
         location: "Miami",
         capacity: 25,
         registrations: 8
@@ -343,7 +346,7 @@ By the end of this training, participants will be equipped with practical tools 
     slug: "effective-communication",
     title: "Effective Communication",
     shortDescription: "Enhance your communication skills to improve workplace relationships and productivity.",
-    description: "This interactive workshop focuses on developing effective verbal and written communication skills. Participants will learn techniques for clear and concise communication, active listening, giving and receiving feedback, and managing difficult conversations. The course also covers presentation skills, email etiquette, and cross-cultural communication.",
+    fullDescription: "This interactive workshop focuses on developing effective verbal and written communication skills. Participants will learn techniques for clear and concise communication, active listening, giving and receiving feedback, and managing difficult conversations. The course also covers presentation skills, email etiquette, and cross-cultural communication.",
     price: 599,
     duration: "1 day",
     level: "All Levels",
@@ -354,24 +357,24 @@ By the end of this training, participants will be equipped with practical tools 
     sessions: [
       {
         id: "session13",
-        startDate: new Date(2024, 0, 15),
-        endDate: new Date(2024, 0, 15),
+        startDate: "2024-01-15",
+        endDate: "2024-01-15",
         location: "Online",
         capacity: 40,
         registrations: 30
       },
       {
         id: "session14",
-        startDate: new Date(2024, 1, 12),
-        endDate: new Date(2024, 1, 12),
+        startDate: "2024-02-12",
+        endDate: "2024-02-12",
         location: "Seattle",
         capacity: 25,
         registrations: 15
       },
       {
         id: "session15",
-        startDate: new Date(2024, 3, 5),
-        endDate: new Date(2024, 3, 5),
+        startDate: "2024-04-05",
+        endDate: "2024-04-05",
         location: "Online",
         capacity: 40,
         registrations: 10

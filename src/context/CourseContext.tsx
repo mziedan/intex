@@ -50,7 +50,8 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
     
     return courseData.filter(course => 
       course.title.toLowerCase().includes(lowerCaseQuery) || 
-      course.shortDescription.toLowerCase().includes(lowerCaseQuery)
+      course.shortDescription.toLowerCase().includes(lowerCaseQuery) ||
+      course.fullDescription.toLowerCase().includes(lowerCaseQuery) // Changed from description to fullDescription
     );
   };
 

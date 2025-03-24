@@ -50,7 +50,8 @@ export function MainNavigationMenu() {
                     >
                       <div className="text-sm font-medium leading-none">{subcategory.name}</div>
                       <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
-                        {subcategory.courses} courses available
+                        {/* We're not accessing subcategory.courses anymore */}
+                        Explore courses
                       </p>
                     </Link>
                   ))}

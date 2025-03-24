@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useCourses } from '@/context/CourseContext';
 import {
   NavigationMenu,
@@ -21,32 +21,23 @@ export function MainNavigationMenu() {
         {/* Courses dropdown with nested categories and subcategories */}
         <NavigationMenuItem>
           <NavigationMenuTrigger>Courses</NavigationMenuTrigger>
-          <NavigationMenuContent className="w-[600px]">
-            <div className="grid grid-cols-2 gap-3 p-4">
+          <NavigationMenuContent className="w-[800px] p-4">
+            <div className="grid grid-cols-3 gap-6">
               {categories.map((category) => (
-                <div key={category.id} className="relative group">
+                <div key={category.id} className="group">
                   <Link
                     to={`/courses/${category.slug}`}
-                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground font-medium"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm font-medium leading-none">{category.name}</div>
-                      <ChevronRight className="h-4 w-4 opacity-70" />
-                    </div>
+                    {category.name}
                   </Link>
                   
-                  <div className="absolute left-full top-0 ml-1 hidden w-[200px] rounded-md border bg-popover p-2 group-hover:block">
-                    <Link
-                      to={`/courses/${category.slug}`}
-                      className="block select-none space-y-1 rounded-md p-2 text-sm leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                    >
-                      All {category.name}
-                    </Link>
+                  <div className="ml-3 mt-1 space-y-1">
                     {category.subcategories.map((subcategory) => (
                       <Link
                         key={subcategory.id}
                         to={`/courses/${category.slug}/${subcategory.slug}`}
-                        className="block select-none space-y-1 rounded-md p-2 text-sm leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                        className="block select-none rounded-md p-2 text-sm leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         {subcategory.name}
                       </Link>

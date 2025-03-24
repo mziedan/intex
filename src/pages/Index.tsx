@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Award, Target, Clock, Users } from 'lucide-react';
@@ -188,7 +187,7 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Featured Courses Section - Modified to 2 rows, 4 columns */}
+        {/* Featured Courses Section - Modified to 3 columns, 2 rows */}
         <section 
           id="courses" 
           className="animate-on-scroll py-24 bg-white"
@@ -204,11 +203,11 @@ const Index = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredCourses.slice(0, 8).map((course, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredCourses.slice(0, 6).map((course, index) => (
                 <div 
                   key={course.id}
-                  className={`transition-all duration-700 delay-${Math.min(index % 4, 3) * 100} ${
+                  className={`transition-all duration-700 delay-${Math.min(index % 3, 3) * 100} ${
                     visibleElements.courses 
                       ? 'opacity-100 translate-y-0' 
                       : 'opacity-0 translate-y-10'

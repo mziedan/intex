@@ -9,6 +9,7 @@ import { useCourses } from '@/context/CourseContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 import {
   Form,
   FormControl,
@@ -50,6 +51,7 @@ const CourseForm = () => {
   const { categories, getCourseBySlug } = useCourses();
   
   const [selectedCategory, setSelectedCategory] = React.useState("");
+  const [description, setDescription] = React.useState("");
   
   // Get course if in edit mode
   const course = isEditMode ? getCourseBySlug(courseId) : null;
@@ -60,7 +62,7 @@ const CourseForm = () => {
     defaultValues: {
       title: course?.title || "",
       shortDescription: course?.shortDescription || "",
-      description: course?.fullDescription || "", // Changed from description to fullDescription
+      description: course?.fullDescription || "",
       category: course?.category || "",
       subcategory: course?.subcategory || "",
       price: course?.price?.toString() || "",
@@ -69,6 +71,13 @@ const CourseForm = () => {
       status: "active" // Default status for new courses
     },
   });
+  
+  // Initialize rich text editor with course description
+  React.useEffect(() => {
+    if (course?.fullDescription) {
+      setDescription(course.fullDescription);
+    }
+  }, [course]);
   
   // On category change, reset subcategory
   const handleCategoryChange = (value: string) => {
@@ -90,9 +99,21 @@ const CourseForm = () => {
     }
   }, [course]);
   
+  // Update form value when rich text editor changes
+  const handleDescriptionChange = (content: string) => {
+    setDescription(content);
+    form.setValue("description", content);
+  };
+  
   function onSubmit(values: z.infer<typeof formSchema>) {
+    // Add description from rich text editor
+    const submissionValues = {
+      ...values,
+      description: description
+    };
+    
     // In a real app, this would save to the database
-    console.log(values);
+    console.log(submissionValues);
     
     toast({
       title: `Course ${isEditMode ? "updated" : "created"} successfully`,
@@ -293,14 +314,14 @@ const CourseForm = () => {
             <FormField
               control={form.control}
               name="description"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Full Description</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Enter a detailed course description" 
-                      {...field} 
-                      rows={6}
+                    <RichTextEditor 
+                      value={description}
+                      onChange={handleDescriptionChange}
+                      placeholder="Enter a detailed course description"
                     />
                   </FormControl>
                   <FormMessage />

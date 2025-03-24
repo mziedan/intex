@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronDown, User, LogOut, Search } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useAuth } from '@/context/AuthContext';
 import { MainNavigationMenu } from './NavigationMenu';
 import { useCourses } from '@/context/CourseContext';
+import SearchBar from '@/components/ui/SearchBar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,9 +18,8 @@ import {
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const { user, isAdmin, logout } = useAuth();
-  const { categories, searchCourses } = useCourses();
+  const { categories } = useCourses();
   const navigate = useNavigate();
 
   const toggleMenu = () => {
@@ -30,13 +29,6 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     navigate('/');
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/courses?search=${encodeURIComponent(searchQuery)}`);
-    }
   };
 
   return (
@@ -55,18 +47,7 @@ const Header = () => {
 
           {/* Search Bar */}
           <div className="hidden md:block max-w-xs ml-4">
-            <form onSubmit={handleSearch} className="flex items-center">
-              <Input
-                type="search"
-                placeholder="Search courses..."
-                className="w-full focus-visible:ring-brand-900"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Button type="submit" variant="ghost" size="icon" className="ml-1">
-                <Search className="h-5 w-5" />
-              </Button>
-            </form>
+            <SearchBar />
           </div>
           
           {/* Authentication Links */}
@@ -120,18 +101,9 @@ const Header = () => {
       {isOpen && (
         <div className="md:hidden bg-white py-4 px-4 shadow-lg">
           {/* Mobile Search */}
-          <form onSubmit={handleSearch} className="flex items-center mb-4">
-            <Input
-              type="search"
-              placeholder="Search courses..."
-              className="w-full"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Button type="submit" variant="ghost" size="icon" className="ml-1">
-              <Search className="h-5 w-5" />
-            </Button>
-          </form>
+          <div className="mb-4">
+            <SearchBar />
+          </div>
           
           <nav className="flex flex-col space-y-3">
             <div className="py-2">

@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronDown, User, LogOut } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut, BookOpen } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/context/AuthContext';
 import { MainNavigationMenu } from './NavigationMenu';
@@ -35,8 +34,9 @@ const Header = () => {
     <header className="fixed w-full bg-white shadow-md z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
-          {/* Logo */}
-          <Link to="/" className="text-2xl font-bold text-brand-900">
+          {/* Logo with Icon */}
+          <Link to="/" className="text-2xl font-bold text-brand-900 flex items-center">
+            <BookOpen className="h-6 w-6 mr-2" />
             TrainingPro
           </Link>
 

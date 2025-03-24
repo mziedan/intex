@@ -11,7 +11,10 @@ import {
   FolderTree, 
   CalendarClock,
   Upload,
-  UserCog
+  UserCog,
+  Image,
+  Award,
+  FileText
 } from 'lucide-react';
 
 const AdminPage = () => {
@@ -58,6 +61,27 @@ const AdminPage = () => {
       description: 'View and manage course registrations',
       icon: ListTodo,
       link: '/admin/registrations'
+    },
+    {
+      id: 'slider',
+      title: 'Slider Management',
+      description: 'Manage homepage slider images and quotes',
+      icon: Image,
+      link: '/admin/slider'
+    },
+    {
+      id: 'partners',
+      title: 'Partners Management',
+      description: 'Manage partner logos and links',
+      icon: Award,
+      link: '/admin/partners'
+    },
+    {
+      id: 'pages',
+      title: 'Custom Pages',
+      description: 'Create and manage custom pages',
+      icon: FileText,
+      link: '/admin/pages'
     },
     {
       id: 'users',

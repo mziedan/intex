@@ -15,6 +15,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/TermsConditions";
+import CustomPage from "./pages/CustomPage";
 
 // Import Admin Pages
 import AdminCategories from "./pages/admin/Categories";
@@ -23,6 +26,9 @@ import AdminSessions from "./pages/admin/Sessions";
 import AdminRegistrations from "./pages/admin/Registrations";
 import AdminUsers from "./pages/admin/Users";
 import AdminBrochure from "./pages/admin/Brochure";
+import SliderManagement from "./pages/admin/SliderManagement";
+import PartnersManagement from "./pages/admin/PartnersManagement";
+import CustomPagesManagement from "./pages/admin/CustomPagesManagement";
 
 // Import Admin Action Pages
 import CourseForm from "./pages/admin/CourseForm";
@@ -49,6 +55,9 @@ const App = () => (
               <Route path="/course/:courseSlug" element={<CourseDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-conditions" element={<TermsConditions />} />
+              <Route path="/page/:slug" element={<CustomPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/admin" element={<Admin />} />
@@ -60,6 +69,9 @@ const App = () => (
               <Route path="/admin/registrations" element={<AdminRegistrations />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/brochure" element={<AdminBrochure />} />
+              <Route path="/admin/slider" element={<SliderManagement />} />
+              <Route path="/admin/partners" element={<PartnersManagement />} />
+              <Route path="/admin/pages" element={<CustomPagesManagement />} />
               
               {/* Admin Action Routes */}
               <Route path="/admin/courses/add" element={<CourseForm />} />

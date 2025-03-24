@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Courses from "./pages/Courses";
 import CourseDetail from "./pages/CourseDetail";
 import Contact from "./pages/Contact";
+import About from "./pages/About";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/courses/:categorySlug" element={<Courses />} />
               <Route path="/courses/:categorySlug/:subcategorySlug" element={<Courses />} />
               <Route path="/course/:courseSlug" element={<CourseDetail />} />
+              <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />

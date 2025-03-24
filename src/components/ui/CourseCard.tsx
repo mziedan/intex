@@ -29,7 +29,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
   return (
     <div 
       className={cn(
-        "group bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg",
+        "group bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg hover:translate-y-[-5px]",
         className
       )}
     >
@@ -40,6 +40,14 @@ const CourseCard: React.FC<CourseCardProps> = ({
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+        
+        {/* Location Badge */}
+        {showDates && upcomingSessions.length > 0 && (
+          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-xs font-medium py-1 px-2 rounded-full flex items-center shadow-sm">
+            <MapPin size={12} className="mr-1 text-brand-700" />
+            {upcomingSessions[0].location}
+          </div>
+        )}
       </div>
       
       <div className="p-5">

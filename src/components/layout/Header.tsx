@@ -1,10 +1,12 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronDown, User, LogOut } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut, Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAuth } from '@/context/AuthContext';
 import { MainNavigationMenu } from './NavigationMenu';
+import { useCourses } from '@/context/CourseContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +15,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useCourses } from '@/context/CourseContext';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { user, isAdmin, logout } = useAuth();
-  const { categories } = useCourses();
+  const { categories, searchCourses } = useCourses();
   const navigate = useNavigate();
 
   const toggleMenu = () => {
@@ -28,6 +30,13 @@ const Header = () => {
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/courses?search=${encodeURIComponent(searchQuery)}`);
+    }
   };
 
   return (
@@ -40,14 +49,28 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="hidden md:flex items-center space-x-1 flex-grow justify-center">
             <MainNavigationMenu />
-            
-            <Link to="/contact" className="px-4 py-2 text-gray-700 hover:text-brand-900">
-              Contact
-            </Link>
-            
-            {/* Authentication Links */}
+          </nav>
+
+          {/* Search Bar */}
+          <div className="hidden md:block max-w-xs ml-4">
+            <form onSubmit={handleSearch} className="flex items-center">
+              <Input
+                type="search"
+                placeholder="Search courses..."
+                className="w-full focus-visible:ring-brand-900"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Button type="submit" variant="ghost" size="icon" className="ml-1">
+                <Search className="h-5 w-5" />
+              </Button>
+            </form>
+          </div>
+          
+          {/* Authentication Links */}
+          <div className="hidden md:block">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -80,7 +103,7 @@ const Header = () => {
                 </Link>
               </div>
             )}
-          </nav>
+          </div>
 
           {/* Mobile Menu Button */}
           <button
@@ -96,34 +119,59 @@ const Header = () => {
       {/* Mobile Navigation */}
       {isOpen && (
         <div className="md:hidden bg-white py-4 px-4 shadow-lg">
+          {/* Mobile Search */}
+          <form onSubmit={handleSearch} className="flex items-center mb-4">
+            <Input
+              type="search"
+              placeholder="Search courses..."
+              className="w-full"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Button type="submit" variant="ghost" size="icon" className="ml-1">
+              <Search className="h-5 w-5" />
+            </Button>
+          </form>
+          
           <nav className="flex flex-col space-y-3">
-            <Link to="/courses" className="py-2 text-gray-700 hover:text-brand-900" onClick={toggleMenu}>
-              All Courses
-            </Link>
-            
-            {categories.map((category) => (
-              <div key={category.id} className="py-2">
-                <Link
-                  to={`/courses/${category.slug}`}
-                  className="text-gray-700 hover:text-brand-900 font-medium"
-                  onClick={toggleMenu}
-                >
-                  {category.name}
-                </Link>
-                <div className="pl-4 mt-1 border-l border-gray-200 space-y-1">
-                  {category.subcategories.map((subcategory) => (
+            <div className="py-2">
+              <Link 
+                to="/courses" 
+                className="text-gray-700 hover:text-brand-900 font-medium" 
+                onClick={toggleMenu}
+              >
+                Courses
+              </Link>
+              <div className="pl-4 mt-1 border-l border-gray-200 space-y-1">
+                {categories.map((category) => (
+                  <div key={category.id} className="py-1">
                     <Link
-                      key={subcategory.id}
-                      to={`/courses/${category.slug}/${subcategory.slug}`}
-                      className="block py-1 text-sm text-gray-600 hover:text-brand-900"
+                      to={`/courses/${category.slug}`}
+                      className="text-gray-700 hover:text-brand-900"
                       onClick={toggleMenu}
                     >
-                      {subcategory.name}
+                      {category.name}
                     </Link>
-                  ))}
-                </div>
+                    <div className="pl-4 mt-1 border-l border-gray-200 space-y-1">
+                      {category.subcategories.map((subcategory) => (
+                        <Link
+                          key={subcategory.id}
+                          to={`/courses/${category.slug}/${subcategory.slug}`}
+                          className="block py-1 text-sm text-gray-600 hover:text-brand-900"
+                          onClick={toggleMenu}
+                        >
+                          {subcategory.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+            
+            <Link to="/about" className="py-2 text-gray-700 hover:text-brand-900" onClick={toggleMenu}>
+              About
+            </Link>
             
             <Link to="/contact" className="py-2 text-gray-700 hover:text-brand-900" onClick={toggleMenu}>
               Contact

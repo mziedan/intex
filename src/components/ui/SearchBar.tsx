@@ -96,7 +96,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ className }) => {
       </form>
 
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg border border-gray-200 py-1">
+        <div className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg border border-gray-200 py-1 max-h-[400px] overflow-y-auto">
           {suggestions.map((course) => (
             <div 
               key={course.id}
@@ -106,8 +106,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ className }) => {
               <div className="w-10 h-10 rounded-md overflow-hidden mr-3 flex-shrink-0">
                 <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
               </div>
-              <div>
-                <div className="font-medium text-sm">{course.title}</div>
+              <div className="overflow-hidden">
+                <div className="font-medium text-sm truncate">{course.title}</div>
                 <div className="text-xs text-gray-500 truncate">{course.shortDescription}</div>
               </div>
             </div>

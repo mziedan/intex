@@ -6,8 +6,7 @@ import {
   Search, 
   Edit, 
   Trash, 
-  FolderPlus, 
-  FileEdit
+  FolderPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,48 +20,40 @@ import {
 } from '@/components/ui/table';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Mock data for categories and subcategories
 const mockCategories = [
-  { id: '1', name: 'Leadership', subcategories: ['Executive Leadership', 'Team Management'] },
-  { id: '2', name: 'Technical', subcategories: ['Software Development', 'Network Security', 'Cloud Computing'] },
-  { id: '3', name: 'Professional Development', subcategories: ['Communication Skills', 'Project Management'] },
-  { id: '4', name: 'Compliance', subcategories: ['Data Protection', 'Industry Regulations'] },
+  { id: '1', name: 'Leadership', slug: 'leadership', subcategories: ['Executive Leadership', 'Team Management'] },
+  { id: '2', name: 'Technical', slug: 'technical', subcategories: ['Software Development', 'Network Security', 'Cloud Computing'] },
+  { id: '3', name: 'Professional Development', slug: 'professional-development', subcategories: ['Communication Skills', 'Project Management'] },
+  { id: '4', name: 'Compliance', slug: 'compliance', subcategories: ['Data Protection', 'Industry Regulations'] },
 ];
 
 const CategoriesPage = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   
   const filteredCategories = mockCategories.filter(category => 
     category.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  const handleAddCategory = () => {
-    toast({
-      title: "Coming Soon",
-      description: "This functionality will be available soon.",
-    });
-  };
-  
-  const handleAddSubcategory = (categoryId: string) => {
-    toast({
-      title: "Coming Soon",
-      description: "This functionality will be available soon.",
-    });
-  };
-  
-  const handleEdit = (id: string) => {
-    toast({
-      title: "Coming Soon",
-      description: "This functionality will be available soon.",
-    });
-  };
-  
   const handleDelete = (id: string) => {
     toast({
-      title: "Coming Soon",
-      description: "This functionality will be available soon.",
+      title: "Category Deleted",
+      description: "The category has been deleted successfully.",
     });
   };
   
@@ -80,7 +71,10 @@ const CategoriesPage = () => {
             />
           </div>
           
-          <Button onClick={handleAddCategory} className="bg-brand-900 hover:bg-brand-700">
+          <Button 
+            onClick={() => navigate("/admin/categories/add")} 
+            className="bg-brand-900 hover:bg-brand-700"
+          >
             <Plus className="mr-2 h-4 w-4" /> Add Category
           </Button>
         </div>
@@ -113,7 +107,7 @@ const CategoriesPage = () => {
                           variant="outline" 
                           size="sm" 
                           className="h-7"
-                          onClick={() => handleAddSubcategory(category.id)}
+                          onClick={() => navigate(`/admin/subcategories/add/${category.id}`)}
                         >
                           <FolderPlus className="h-3.5 w-3.5 mr-1" /> Add
                         </Button>
@@ -121,12 +115,42 @@ const CategoriesPage = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
-                        <Button variant="outline" size="sm" onClick={() => handleEdit(category.id)}>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => navigate(`/admin/categories/edit/${category.id}`)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm" className="text-red-500 hover:text-red-700 hover:border-red-300" onClick={() => handleDelete(category.id)}>
-                          <Trash className="h-4 w-4" />
-                        </Button>
+                        
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-red-500 hover:text-red-700 hover:border-red-300"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete the category and all associated subcategories. Courses in this category will be unassigned. This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                className="bg-red-500 hover:bg-red-700"
+                                onClick={() => handleDelete(category.id)}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>

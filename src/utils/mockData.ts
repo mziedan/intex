@@ -1,4 +1,3 @@
-
 export interface Category {
   id: string;
   name: string;
@@ -33,6 +32,10 @@ export interface Course {
   subcategory: string;
   featured: boolean;
   sessions: CourseSession[];
+  price?: number;
+  discountPrice?: number;
+  duration?: string;
+  level?: string;
 }
 
 export interface Statistic {
@@ -56,7 +59,6 @@ export interface Partner {
   logo: string;
 }
 
-// Mock data for categories
 export const categories: Category[] = [
   {
     id: "cat1",
@@ -148,187 +150,236 @@ export const categories: Category[] = [
   }
 ];
 
-// Mock data for courses
 export const courses: Course[] = [
   {
     id: "course1",
-    title: "Executive Leadership Excellence",
-    slug: "executive-leadership-excellence",
-    shortDescription: "Master the art of executive leadership in this comprehensive training program.",
-    fullDescription: "Elevate your leadership skills with our Executive Leadership Excellence program. This comprehensive training is designed for senior managers and executives who want to lead with vision, inspire their teams, and drive organizational success. Throughout this course, you'll learn proven strategies for effective decision-making, managing complex organizational challenges, and developing a leadership style that builds trust and motivates your team. With practical exercises, case studies, and personalized feedback, you'll emerge as a more confident and capable leader ready to take your organization to new heights.",
-    image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop",
+    slug: "advanced-leadership-skills",
+    title: "Advanced Leadership Skills",
+    shortDescription: "Develop the skills needed to lead teams effectively in today's dynamic business environment.",
+    description: `This comprehensive leadership program is designed for managers who want to enhance their leadership capabilities. Participants will learn advanced techniques for team motivation, conflict resolution, and strategic decision-making.
+
+The course covers:
+- Strategic leadership thinking
+- Building high-performance teams
+- Managing change effectively
+- Emotional intelligence in leadership
+- Influence and persuasion techniques
+- Crisis management
+
+By the end of this training, participants will be equipped with practical tools and frameworks to lead with confidence and achieve superior team results.`,
+    price: 1299,
+    discountPrice: 999,
+    duration: "3 days",
+    level: "Intermediate",
     category: "cat1",
     subcategory: "subcat1",
     featured: true,
+    image: "/placeholder.svg",
     sessions: [
       {
         id: "session1",
-        startDate: "2024-06-15",
-        endDate: "2024-06-18",
-        location: "New York City, NY"
+        startDate: new Date(2023, 11, 4),
+        endDate: new Date(2023, 11, 6),
+        location: "New York City",
+        capacity: 25,
+        registrations: 18
       },
       {
         id: "session2",
-        startDate: "2024-08-10",
-        endDate: "2024-08-13",
-        location: "San Francisco, CA"
+        startDate: new Date(2024, 1, 15),
+        endDate: new Date(2024, 1, 17),
+        location: "San Francisco",
+        capacity: 25,
+        registrations: 12
+      },
+      {
+        id: "session3",
+        startDate: new Date(2024, 3, 8),
+        endDate: new Date(2024, 3, 10),
+        location: "Chicago",
+        capacity: 25,
+        registrations: 5
       }
     ]
   },
   {
     id: "course2",
-    title: "Building High-Performance Teams",
-    slug: "building-high-performance-teams",
-    shortDescription: "Learn strategies for developing and managing high-performing teams.",
-    fullDescription: "Discover how to build and lead high-performance teams in any industry. This transformative course provides a deep dive into team dynamics, motivation techniques, conflict resolution, and collaborative problem-solving. You'll learn how to identify team members' strengths, delegate effectively, and create an environment where innovation thrives. Through interactive workshops and real-world scenarios, you'll develop practical skills for overcoming team challenges and fostering a culture of excellence. By the end of this training, you'll have the tools and confidence to lead teams that consistently exceed expectations and drive organizational success.",
-    image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop",
-    category: "cat1",
-    subcategory: "subcat2",
-    featured: false,
+    slug: "project-management-fundamentals",
+    title: "Project Management Fundamentals",
+    shortDescription: "Master the essential skills and methodologies required to successfully manage projects of any size.",
+    description: "A comprehensive introduction to project management principles and practices. Learn how to initiate, plan, execute, monitor, and close projects effectively. This course covers the core project management knowledge areas including scope, time, cost, quality, resources, communication, risk, procurement, and stakeholder management.",
+    price: 899,
+    duration: "2 days",
+    level: "Beginner",
+    category: "cat2",
+    subcategory: "subcat3",
+    featured: true,
+    image: "/placeholder.svg",
     sessions: [
       {
-        id: "session3",
-        startDate: "2024-07-20",
-        endDate: "2024-07-22",
-        location: "Chicago, IL"
+        id: "session4",
+        startDate: new Date(2023, 11, 11),
+        endDate: new Date(2023, 11, 12),
+        location: "Online",
+        capacity: 30,
+        registrations: 25
+      },
+      {
+        id: "session5",
+        startDate: new Date(2024, 0, 22),
+        endDate: new Date(2024, 0, 23),
+        location: "Online",
+        capacity: 30,
+        registrations: 14
       }
     ]
   },
   {
     id: "course3",
-    title: "Social Media Marketing Mastery",
-    slug: "social-media-marketing-mastery",
-    shortDescription: "Comprehensive training on effective social media marketing strategies.",
-    fullDescription: "Master the art and science of social media marketing with our comprehensive training program. This course covers everything from platform-specific strategies to content creation, analytics, and paid advertising. You'll learn how to build a cohesive social media strategy aligned with business goals, create engaging content that resonates with your target audience, and measure ROI effectively. Our expert instructors will guide you through the latest trends, algorithm changes, and best practices across all major platforms. By the end of this course, you'll have the skills to elevate your brand's social presence, increase engagement, and drive measurable business results through social media.",
-    image: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=2074&auto=format&fit=crop",
-    category: "cat2",
-    subcategory: "subcat3",
-    featured: true,
+    slug: "data-analysis-with-python",
+    title: "Data Analysis with Python",
+    shortDescription: "Learn how to use Python for data analysis, visualization, and interpretation.",
+    description: "This hands-on course teaches you how to use Python for data analysis. You'll learn how to import, clean, transform, and visualize data using popular libraries like Pandas, NumPy, and Matplotlib. By the end of the course, you'll be able to build complex data analysis pipelines and extract meaningful insights from real-world datasets.",
+    price: 1199,
+    duration: "4 days",
+    level: "Intermediate",
+    category: "cat3",
+    subcategory: "subcat5",
+    featured: false,
+    image: "/placeholder.svg",
     sessions: [
       {
-        id: "session4",
-        startDate: "2024-06-05",
-        endDate: "2024-06-07",
-        location: "Austin, TX"
+        id: "session6",
+        startDate: new Date(2023, 11, 18),
+        endDate: new Date(2023, 11, 21),
+        location: "Boston",
+        capacity: 20,
+        registrations: 15
       },
       {
-        id: "session5",
-        startDate: "2024-09-18",
-        endDate: "2024-09-20",
-        location: "Miami, FL"
+        id: "session7",
+        startDate: new Date(2024, 2, 4),
+        endDate: new Date(2024, 2, 7),
+        location: "Online",
+        capacity: 35,
+        registrations: 10
       }
     ]
   },
   {
     id: "course4",
-    title: "Advanced SEO Techniques",
-    slug: "advanced-seo-techniques",
-    shortDescription: "Master advanced SEO strategies to improve website visibility and rankings.",
-    fullDescription: "Take your SEO skills to the next level with our Advanced SEO Techniques course. Designed for marketers with a foundational understanding of SEO, this intensive training dives deep into technical optimization, advanced keyword research, link building strategies, and search algorithm analysis. You'll learn how to conduct comprehensive SEO audits, optimize for voice search and mobile, implement structured data, and develop content strategies that drive organic traffic. Our expert instructors share real-world case studies and practical techniques that have helped businesses achieve and maintain top search rankings. By the end of this course, you'll be equipped with cutting-edge SEO knowledge to outperform competitors in even the most challenging industries.",
-    image: "https://images.unsplash.com/photo-1562577309-4932fdd64cd1?q=80&w=2074&auto=format&fit=crop",
-    category: "cat2",
-    subcategory: "subcat4",
-    featured: false,
+    slug: "cybersecurity-essentials",
+    title: "Cybersecurity Essentials",
+    shortDescription: "Learn the fundamentals of cybersecurity to protect your organization from digital threats.",
+    description: "This course provides a solid foundation in cybersecurity principles and practices. Participants will learn about common cyber threats, vulnerability assessment, risk management, and defense strategies. The course also covers security policies, compliance requirements, and incident response.",
+    price: 999,
+    duration: "2 days",
+    level: "Beginner",
+    category: "cat3",
+    subcategory: "subcat6",
+    featured: true,
+    image: "/placeholder.svg",
     sessions: [
       {
-        id: "session6",
-        startDate: "2024-08-25",
-        endDate: "2024-08-27",
-        location: "Seattle, WA"
+        id: "session8",
+        startDate: new Date(2024, 0, 8),
+        endDate: new Date(2024, 0, 9),
+        location: "Washington DC",
+        capacity: 25,
+        registrations: 22
+      },
+      {
+        id: "session9",
+        startDate: new Date(2024, 2, 18),
+        endDate: new Date(2024, 2, 19),
+        location: "Online",
+        capacity: 30,
+        registrations: 5
+      },
+      {
+        id: "session10",
+        startDate: new Date(2024, 4, 13),
+        endDate: new Date(2024, 4, 14),
+        location: "Austin",
+        capacity: 25,
+        registrations: 0
       }
     ]
   },
   {
     id: "course5",
-    title: "Agile Project Management",
-    slug: "agile-project-management",
-    shortDescription: "Learn to implement Agile methodologies for successful project delivery.",
-    fullDescription: "Transform your project management approach with our comprehensive Agile Project Management course. This hands-on training equips you with the principles, practices, and tools needed to successfully implement Agile methodologies in any organization. You'll learn how to plan and execute sprints, facilitate effective ceremonies, manage backlogs, and track progress using Agile metrics. Our expert instructors will guide you through real-world applications of Scrum, Kanban, and other Agile frameworks, helping you understand when and how to apply each approach. Through interactive exercises and case studies, you'll develop the skills to foster team collaboration, respond to change effectively, and deliver high-value products that meet customer needs.",
-    image: "https://images.unsplash.com/photo-1570126688035-1e6adbd61053?q=80&w=2091&auto=format&fit=crop",
-    category: "cat3",
-    subcategory: "subcat5",
-    featured: true,
+    slug: "strategic-marketing",
+    title: "Strategic Marketing",
+    shortDescription: "Develop and implement effective marketing strategies that drive business growth.",
+    description: "This course provides a comprehensive overview of strategic marketing principles and practices. Learn how to analyze market opportunities, develop effective marketing strategies, and create compelling marketing plans. Topics include market research, segmentation, targeting, positioning, product development, pricing, distribution, and promotion.",
+    price: 899,
+    duration: "2 days",
+    level: "Intermediate",
+    category: "cat2",
+    subcategory: "subcat4",
+    featured: false,
+    image: "/placeholder.svg",
     sessions: [
       {
-        id: "session7",
-        startDate: "2024-07-10",
-        endDate: "2024-07-12",
-        location: "Denver, CO"
+        id: "session11",
+        startDate: new Date(2023, 11, 14),
+        endDate: new Date(2023, 11, 15),
+        location: "Chicago",
+        capacity: 25,
+        registrations: 20
       },
       {
-        id: "session8",
-        startDate: "2024-10-15",
-        endDate: "2024-10-17",
-        location: "Boston, MA"
+        id: "session12",
+        startDate: new Date(2024, 3, 22),
+        endDate: new Date(2024, 3, 23),
+        location: "Miami",
+        capacity: 25,
+        registrations: 8
       }
     ]
   },
   {
     id: "course6",
-    title: "Certified Scrum Master Training",
-    slug: "certified-scrum-master-training",
-    shortDescription: "Comprehensive training to prepare for the Certified Scrum Master exam.",
-    fullDescription: "Prepare for Scrum Master certification with our comprehensive training program. This intensive course provides a deep understanding of Scrum principles, values, and practices as outlined in the Scrum Guide. You'll learn how to effectively facilitate Scrum events, coach development teams, and support Product Owners in backlog management. Our expert trainers will guide you through the challenges of implementing Scrum in various organizational contexts and equip you with strategies to overcome common obstacles. Through practical exercises, simulations, and case studies, you'll develop the knowledge and confidence to pass your certification exam and excel in your role as a Scrum Master. This course includes exam preparation materials and ongoing support during your certification journey.",
-    image: "https://images.unsplash.com/photo-1579389083078-4e7018379f7e?q=80&w=2070&auto=format&fit=crop",
-    category: "cat3",
-    subcategory: "subcat6",
+    slug: "effective-communication",
+    title: "Effective Communication",
+    shortDescription: "Enhance your communication skills to improve workplace relationships and productivity.",
+    description: "This interactive workshop focuses on developing effective verbal and written communication skills. Participants will learn techniques for clear and concise communication, active listening, giving and receiving feedback, and managing difficult conversations. The course also covers presentation skills, email etiquette, and cross-cultural communication.",
+    price: 599,
+    duration: "1 day",
+    level: "All Levels",
+    category: "cat1",
+    subcategory: "subcat2",
     featured: false,
+    image: "/placeholder.svg",
     sessions: [
       {
-        id: "session9",
-        startDate: "2024-09-05",
-        endDate: "2024-09-06",
-        location: "Atlanta, GA"
-      }
-    ]
-  },
-  {
-    id: "course7",
-    title: "Strategic Recruitment & Selection",
-    slug: "strategic-recruitment-selection",
-    shortDescription: "Learn advanced techniques for effective recruitment and candidate selection.",
-    fullDescription: "Master the art and science of strategic recruitment with our comprehensive training program. This course equips HR professionals and hiring managers with cutting-edge strategies to attract, assess, and secure top talent in competitive markets. You'll learn how to develop compelling employer value propositions, design structured interview processes, utilize behavioral and situational assessments, and implement data-driven selection methods. Our expert instructors will guide you through creating inclusive recruitment practices, optimizing candidate experience, and measuring recruitment effectiveness. With a blend of case studies, role-playing exercises, and practical tools, you'll develop the skills to build high-performing teams through strategic recruitment and selection processes that align with your organization's goals and culture.",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2149&auto=format&fit=crop",
-    category: "cat4",
-    subcategory: "subcat7",
-    featured: true,
-    sessions: [
-      {
-        id: "session10",
-        startDate: "2024-06-20",
-        endDate: "2024-06-21",
-        location: "Philadelphia, PA"
+        id: "session13",
+        startDate: new Date(2024, 0, 15),
+        endDate: new Date(2024, 0, 15),
+        location: "Online",
+        capacity: 40,
+        registrations: 30
       },
       {
-        id: "session11",
-        startDate: "2024-08-15",
-        endDate: "2024-08-16",
-        location: "Dallas, TX"
-      }
-    ]
-  },
-  {
-    id: "course8",
-    title: "Employee Development & Retention Strategies",
-    slug: "employee-development-retention-strategies",
-    shortDescription: "Comprehensive strategies for employee development, engagement, and retention.",
-    fullDescription: "Discover proven strategies for developing and retaining your organization's most valuable asset—its people. This comprehensive course equips HR professionals and managers with the tools and techniques to create effective development plans, foster employee engagement, and build a culture that attracts and retains top talent. You'll learn how to design career pathways, implement mentoring and coaching programs, and create learning opportunities that align with both organizational needs and employee aspirations. Our expert instructors will guide you through developing recognition systems, conducting meaningful performance conversations, and measuring the impact of your retention initiatives. Through case studies, workshops, and actionable templates, you'll develop a strategic approach to employee development that drives engagement, reduces turnover, and strengthens your organization's competitive advantage.",
-    image: "https://images.unsplash.com/photo-1527689368864-3a821dbccc34?q=80&w=2070&auto=format&fit=crop",
-    category: "cat4",
-    subcategory: "subcat8",
-    featured: false,
-    sessions: [
+        id: "session14",
+        startDate: new Date(2024, 1, 12),
+        endDate: new Date(2024, 1, 12),
+        location: "Seattle",
+        capacity: 25,
+        registrations: 15
+      },
       {
-        id: "session12",
-        startDate: "2024-07-25",
-        endDate: "2024-07-26",
-        location: "Minneapolis, MN"
+        id: "session15",
+        startDate: new Date(2024, 3, 5),
+        endDate: new Date(2024, 3, 5),
+        location: "Online",
+        capacity: 40,
+        registrations: 10
       }
     ]
   }
 ];
 
-// Mock data for statistics
 export const statistics: Statistic[] = [
   {
     id: "stat1",
@@ -362,7 +413,6 @@ export const statistics: Statistic[] = [
   }
 ];
 
-// Mock data for hero slider
 export const heroSlides: Slide[] = [
   {
     id: "slide1",
@@ -384,7 +434,6 @@ export const heroSlides: Slide[] = [
   }
 ];
 
-// Mock data for partners
 export const partners: Partner[] = [
   {
     id: "partner1",
@@ -418,7 +467,6 @@ export const partners: Partner[] = [
   }
 ];
 
-// Company information
 export const companyInfo = {
   name: "Excellence Training",
   description: "Excellence Training is a premier provider of professional development and corporate training programs. With over 15 years of experience, we've helped thousands of individuals and organizations achieve their full potential through our expert-led courses. Our approach combines cutting-edge content, engaging delivery methods, and practical application to ensure lasting results.",

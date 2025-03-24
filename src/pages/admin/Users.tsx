@@ -24,6 +24,18 @@ import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Mock data for admin users
 const mockUsers = [
@@ -63,6 +75,7 @@ const mockUsers = [
 
 const UsersPage = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   
   const filteredUsers = mockUsers.filter(user => 
@@ -71,24 +84,10 @@ const UsersPage = () => {
     user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  const handleAddUser = () => {
-    toast({
-      title: "Coming Soon",
-      description: "This functionality will be available soon.",
-    });
-  };
-  
-  const handleEdit = (id: string) => {
-    toast({
-      title: "Coming Soon",
-      description: "This functionality will be available soon.",
-    });
-  };
-  
   const handleDelete = (id: string) => {
     toast({
-      title: "Coming Soon",
-      description: "This functionality will be available soon.",
+      title: "User Deleted",
+      description: "The user has been deleted successfully.",
     });
   };
   
@@ -138,7 +137,10 @@ const UsersPage = () => {
             />
           </div>
           
-          <Button onClick={handleAddUser} className="bg-brand-900 hover:bg-brand-700">
+          <Button 
+            onClick={() => navigate("/admin/users/add")} 
+            className="bg-brand-900 hover:bg-brand-700"
+          >
             <Plus className="mr-2 h-4 w-4" /> Add User
           </Button>
         </div>
@@ -177,12 +179,42 @@ const UsersPage = () => {
                         >
                           <Mail className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleEdit(user.id)}>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => navigate(`/admin/users/edit/${user.id}`)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm" className="text-red-500 hover:text-red-700 hover:border-red-300" onClick={() => handleDelete(user.id)}>
-                          <Trash className="h-4 w-4" />
-                        </Button>
+                        
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-red-500 hover:text-red-700 hover:border-red-300"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete this user account. This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                className="bg-red-500 hover:bg-red-700"
+                                onClick={() => handleDelete(user.id)}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>

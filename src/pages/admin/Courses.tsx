@@ -22,7 +22,7 @@ import {
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Select,
   SelectContent,
@@ -30,6 +30,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Mock data for courses
 const mockCourses = [
@@ -75,6 +86,7 @@ const CoursesPage = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const navigate = useNavigate();
   
   const filteredCourses = mockCourses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -82,31 +94,10 @@ const CoursesPage = () => {
     return matchesSearch && matchesCategory;
   });
   
-  const handleAddCourse = () => {
-    toast({
-      title: "Coming Soon",
-      description: "This functionality will be available soon.",
-    });
-  };
-  
-  const handleEdit = (id: string) => {
-    toast({
-      title: "Coming Soon",
-      description: "This functionality will be available soon.",
-    });
-  };
-  
   const handleDelete = (id: string) => {
     toast({
-      title: "Coming Soon",
-      description: "This functionality will be available soon.",
-    });
-  };
-  
-  const handleManageSessions = (id: string) => {
-    toast({
-      title: "Coming Soon",
-      description: "This functionality will be available soon.",
+      title: "Course Deleted",
+      description: "The course has been deleted successfully.",
     });
   };
   
@@ -139,7 +130,10 @@ const CoursesPage = () => {
             </Select>
           </div>
           
-          <Button onClick={handleAddCourse} className="bg-brand-900 hover:bg-brand-700 w-full md:w-auto">
+          <Button 
+            onClick={() => navigate("/admin/courses/add")} 
+            className="bg-brand-900 hover:bg-brand-700 w-full md:w-auto"
+          >
             <Plus className="mr-2 h-4 w-4" /> Add Course
           </Button>
         </div>
@@ -179,7 +173,7 @@ const CoursesPage = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          onClick={() => handleManageSessions(course.id)}
+                          onClick={() => navigate(`/admin/courses/${course.id}/sessions`)}
                           title="Manage Sessions"
                         >
                           <CalendarClock className="h-4 w-4" />
@@ -198,21 +192,41 @@ const CoursesPage = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          onClick={() => handleEdit(course.id)}
+                          onClick={() => navigate(`/admin/courses/edit/${course.id}`)}
                           title="Edit Course"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                         
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="text-red-500 hover:text-red-700 hover:border-red-300" 
-                          onClick={() => handleDelete(course.id)}
-                          title="Delete Course"
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-red-500 hover:text-red-700 hover:border-red-300"
+                              title="Delete Course"
+                            >
+                              <Trash className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete the course and all associated sessions. This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                className="bg-red-500 hover:bg-red-700"
+                                onClick={() => handleDelete(course.id)}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>

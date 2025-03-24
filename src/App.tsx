@@ -23,6 +23,13 @@ import AdminRegistrations from "./pages/admin/Registrations";
 import AdminUsers from "./pages/admin/Users";
 import AdminBrochure from "./pages/admin/Brochure";
 
+// Import Admin Action Pages
+import CourseForm from "./pages/admin/CourseForm";
+import SessionsManagement from "./pages/admin/SessionsManagement";
+import CategoryForm from "./pages/admin/CategoryForm";
+import SubcategoryForm from "./pages/admin/SubcategoryForm";
+import UserForm from "./pages/admin/UserForm";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -51,6 +58,18 @@ const App = () => (
               <Route path="/admin/registrations" element={<AdminRegistrations />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/brochure" element={<AdminBrochure />} />
+              
+              {/* Admin Action Routes */}
+              <Route path="/admin/courses/add" element={<CourseForm />} />
+              <Route path="/admin/courses/edit/:courseId" element={<CourseForm />} />
+              <Route path="/admin/courses/:courseId/sessions" element={<SessionsManagement />} />
+              <Route path="/admin/categories/add" element={<CategoryForm />} />
+              <Route path="/admin/categories/edit/:categoryId" element={<CategoryForm />} />
+              <Route path="/admin/subcategories/add" element={<SubcategoryForm />} />
+              <Route path="/admin/subcategories/add/:categoryId" element={<SubcategoryForm />} />
+              <Route path="/admin/subcategories/edit/:categoryId/:subcategoryId" element={<SubcategoryForm />} />
+              <Route path="/admin/users/add" element={<UserForm />} />
+              <Route path="/admin/users/edit/:userId" element={<UserForm />} />
               
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -42,7 +42,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         placeholder={placeholder}
         className="bg-white rounded-md min-h-[200px]"
       />
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .ql-container {
           min-height: 150px;
           border-bottom-left-radius: 0.375rem;
@@ -59,7 +59,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           max-height: 400px;
           overflow-y: auto;
         }
-      `}</style>
+      `}} />
     </div>
   );
 };

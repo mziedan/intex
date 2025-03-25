@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import NavigationMenu from './NavigationMenu';
@@ -10,6 +10,14 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useLanguage } from '@/context/LanguageContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
   const { t } = useLanguage();
@@ -17,7 +25,7 @@ const Header = () => {
   const isMobile = useIsMobile();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -32,6 +40,9 @@ const Header = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+  
+  // Determine text color based on scroll position and current page
+  const textColor = (isScrolled || location.pathname !== '/') ? 'text-gray-900' : 'text-gray-100';
   
   return (
     <header
@@ -66,14 +77,34 @@ const Header = () => {
               
               {user ? (
                 <div className="flex items-center space-x-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-brand-100 text-brand-800">
-                      {user.name.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <Button variant="link" size="sm" onClick={logout}>
-                    Logout
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <Avatar className="h-8 w-8 cursor-pointer">
+                        <AvatarFallback className="bg-brand-100 text-brand-800">
+                          {user.name.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/profile">My Profile</Link>
+                      </DropdownMenuItem>
+                      {isAdmin && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin">
+                            <Settings className="mr-2 h-4 w-4" />
+                            Admin Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={logout}>
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               ) : (
                 <div className="flex items-center space-x-2">
@@ -131,6 +162,14 @@ const Header = () => {
                     </Avatar>
                     <span>{user.name}</span>
                   </div>
+                  {isAdmin && (
+                    <Button variant="outline" asChild className="w-full justify-start">
+                      <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        Admin Dashboard
+                      </Link>
+                    </Button>
+                  )}
                   <Button variant="outline" onClick={logout}>
                     Logout
                   </Button>

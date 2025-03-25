@@ -20,6 +20,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
   const { categories } = useCourses();
   const { t } = useLanguage();
   
+  // Use explicit white text when on homepage and not scrolled
   const textColor = (!isScrolled && isHomePage) ? 'text-white' : 'text-gray-800';
   const hoverColor = (!isScrolled && isHomePage) ? 'hover:text-gray-200' : 'hover:text-brand-700';
   

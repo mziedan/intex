@@ -1,16 +1,27 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Grid3X3, List, Calendar, MapPin } from 'lucide-react';
+import { ArrowLeft, Grid3X3, List, Calendar, MapPin, Table, Clock, FileCode } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CategoryCard from '@/components/ui/CategoryCard';
 import CourseCard from '@/components/ui/CourseCard';
 import { useCourses, Category, Subcategory, Course } from '@/context/CourseContext';
+import { 
+  Table as UITable,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { format } from 'date-fns';
 
 const Courses = () => {
   const { categorySlug, subcategorySlug } = useParams<{ categorySlug?: string; subcategorySlug?: string }>();
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'table'>('grid');
   const [isLoading, setIsLoading] = useState(true);
   
   const { 
@@ -39,8 +50,8 @@ const Courses = () => {
           if (category && subcategory) {
             setCurrentCategory(category);
             setCurrentSubcategory(subcategory);
-            const courses = await getCoursesBySubcategory(subcategory.id);
-            setFilteredCourses(courses);
+            const subcategoryCourses = await getCoursesBySubcategory(subcategory.id);
+            setFilteredCourses(subcategoryCourses);
           }
         } else if (categorySlug) {
           // Display subcategories for a specific category
@@ -49,8 +60,8 @@ const Courses = () => {
           if (category) {
             setCurrentCategory(category);
             setCurrentSubcategory(null);
-            const courses = await getCoursesByCategory(category.id);
-            setFilteredCourses(courses);
+            const categoryCourses = await getCoursesByCategory(category.id);
+            setFilteredCourses(categoryCourses);
           }
         } else {
           // Display all categories
@@ -107,6 +118,110 @@ const Courses = () => {
     );
   };
 
+  const renderTableView = () => {
+    return (
+      <UITable>
+        <TableCaption>Available {currentSubcategory?.name} Courses</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Course Code</TableHead>
+            <TableHead>Course Name</TableHead>
+            <TableHead>Duration</TableHead>
+            <TableHead>Session Dates</TableHead>
+            <TableHead>Location</TableHead>
+            <TableHead>Action</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filteredCourses.map((course) => {
+            // If course has multiple sessions, create a row for each session
+            if (course.sessions && course.sessions.length > 0) {
+              return course.sessions.map((session, sessionIndex) => (
+                <TableRow key={`${course.id}-${sessionIndex}`}>
+                  {sessionIndex === 0 && (
+                    <>
+                      <TableCell className="font-medium" rowSpan={course.sessions.length}>
+                        <div className="flex items-center">
+                          <FileCode className="h-4 w-4 mr-2 text-brand-700" />
+                          {course.id.substring(0, 8)}
+                        </div>
+                      </TableCell>
+                      <TableCell rowSpan={course.sessions.length}>
+                        <Link to={`/course/${course.slug}`} className="hover:text-brand-900 transition-colors font-medium">
+                          {course.title}
+                        </Link>
+                      </TableCell>
+                      <TableCell rowSpan={course.sessions.length}>
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-2 text-brand-700" />
+                          {course.duration || '4 weeks'}
+                        </div>
+                      </TableCell>
+                    </>
+                  )}
+                  <TableCell>
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2 text-brand-700" />
+                      <span>
+                        {new Date(session.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(session.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-2 text-brand-700" />
+                      {session.location}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Button size="sm" asChild>
+                      <Link to={`/course/${course.slug}?session=${session.id}`}>
+                        Register
+                      </Link>
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ));
+            } else {
+              // Fallback for courses without sessions
+              return (
+                <TableRow key={course.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center">
+                      <FileCode className="h-4 w-4 mr-2 text-brand-700" />
+                      {course.id.substring(0, 8)}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Link to={`/course/${course.slug}`} className="hover:text-brand-900 transition-colors font-medium">
+                      {course.title}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-2 text-brand-700" />
+                      {course.duration || '4 weeks'}
+                    </div>
+                  </TableCell>
+                  <TableCell colSpan={2} className="text-center text-gray-500">
+                    No scheduled sessions
+                  </TableCell>
+                  <TableCell>
+                    <Button size="sm" asChild>
+                      <Link to={`/course/${course.slug}`}>
+                        View Details
+                      </Link>
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            }
+          })}
+        </TableBody>
+      </UITable>
+    );
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -160,6 +275,17 @@ const Courses = () => {
                     aria-label="List view"
                   >
                     <List size={18} />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('table')}
+                    className={`p-2 rounded-md ${
+                      viewMode === 'table' 
+                        ? 'bg-brand-100 text-brand-900' 
+                        : 'text-gray-500 hover:text-brand-900 hover:bg-gray-100'
+                    }`}
+                    aria-label="Table view"
+                  >
+                    <Table size={18} />
                   </button>
                 </div>
               </div>
@@ -226,7 +352,7 @@ const Courses = () => {
                           />
                         ))}
                       </div>
-                    ) : (
+                    ) : viewMode === 'list' ? (
                       <div className="space-y-6">
                         {filteredCourses.map((course) => (
                           <div 
@@ -278,6 +404,11 @@ const Courses = () => {
                             </div>
                           </div>
                         ))}
+                      </div>
+                    ) : (
+                      // Table view
+                      <div className="overflow-x-auto">
+                        {renderTableView()}
                       </div>
                     )
                   ) : (

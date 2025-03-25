@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCourses } from '@/context/CourseContext';
@@ -20,9 +19,11 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
   const { categories } = useCourses();
   const { t } = useLanguage();
   
-  // Use explicit white text when on homepage and not scrolled
-  const textColor = (!isScrolled && isHomePage) ? 'text-white' : 'text-gray-800';
-  const hoverColor = (!isScrolled && isHomePage) ? 'hover:text-gray-200' : 'hover:text-brand-700';
+  // Use brand colors for better contrast and professional look
+  // When on homepage and not scrolled, use white for contrast against hero background
+  // Otherwise use brand-800 which is a dark professional color
+  const textColor = (!isScrolled && isHomePage) ? 'text-white' : 'text-brand-800';
+  const hoverColor = (!isScrolled && isHomePage) ? 'hover:text-gray-200' : 'hover:text-brand-600';
   
   const navItems = [
     { text: t('nav.home'), link: '/' },

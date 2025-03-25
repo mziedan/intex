@@ -1,80 +1,52 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useCourses } from '@/context/CourseContext';
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger
-} from '@/components/ui/navigation-menu';
+import { useLanguage } from '@/context/LanguageContext';
 
-export function MainNavigationMenu() {
+interface NavigationMenuProps {
+  isScrolled: boolean;
+  isHomePage: boolean;
+  isMobile?: boolean;
+  onItemClick?: () => void;
+}
+
+const NavigationMenu: React.FC<NavigationMenuProps> = ({ 
+  isScrolled, 
+  isHomePage,
+  isMobile = false,
+  onItemClick = () => {} 
+}) => {
   const { categories } = useCourses();
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const { t } = useLanguage();
+  
+  const textColor = (!isScrolled && isHomePage) ? 'text-white' : 'text-gray-800';
+  const hoverColor = (!isScrolled && isHomePage) ? 'hover:text-gray-200' : 'hover:text-brand-700';
+  
+  const navItems = [
+    { text: t('nav.home'), link: '/' },
+    { text: t('nav.courses'), link: '/courses' },
+    { text: t('nav.about'), link: '/about' },
+    { text: t('nav.contact'), link: '/contact' },
+  ];
 
   return (
-    <NavigationMenu className="hidden md:flex">
-      <NavigationMenuList>
-        {/* Courses dropdown with nested categories and subcategories */}
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Courses</NavigationMenuTrigger>
-          <NavigationMenuContent className="w-[600px] p-0 left-0">
-            <div className="flex">
-              {/* Main categories column */}
-              <div className="w-1/2 bg-background border-r border-border">
-                {categories.map((category) => (
-                  <Link
-                    key={category.id}
-                    to={`/courses/${category.slug}`}
-                    className="flex items-center justify-between px-4 py-3 hover:bg-accent hover:text-accent-foreground transition-colors"
-                    onMouseEnter={() => setActiveCategory(category.id)}
-                  >
-                    <span>{category.name}</span>
-                    {category.subcategories.length > 0 && (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </Link>
-                ))}
-              </div>
-              
-              {/* Subcategories column */}
-              <div className="w-1/2 bg-popover">
-                {activeCategory && categories.find(c => c.id === activeCategory)?.subcategories.map((subcategory) => (
-                  <Link
-                    key={subcategory.id}
-                    to={`/courses/${categories.find(c => c.id === activeCategory)?.slug}/${subcategory.slug}`}
-                    className="block px-4 py-3 hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    {subcategory.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        
-        {/* About page link */}
-        <NavigationMenuItem>
-          <Link to="/about">
-            <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none">
-              About
-            </NavigationMenuLink>
-          </Link>
-        </NavigationMenuItem>
-        
-        {/* Contact page link */}
-        <NavigationMenuItem>
-          <Link to="/contact">
-            <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none">
-              Contact
-            </NavigationMenuLink>
-          </Link>
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+    <nav>
+      <ul className={`${isMobile ? 'flex flex-col space-y-4' : 'flex items-center space-x-8'}`}>
+        {navItems.map((item, index) => (
+          <li key={index}>
+            <Link 
+              to={item.link}
+              className={`font-medium transition-colors ${textColor} ${hoverColor}`}
+              onClick={onItemClick}
+            >
+              {item.text}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
-}
+};
+
+export default NavigationMenu;

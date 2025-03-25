@@ -1,58 +1,174 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { courses, categories, Course, Category } from '../utils/mockData';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import db from '../services/db';
+import { useToast } from '@/hooks/use-toast';
+
+export interface Course {
+  id: string;
+  title: string;
+  slug: string;
+  short_description: string;
+  description: string;
+  price: number;
+  discount_price?: number;
+  duration: string;
+  level: string;
+  category_id: string;
+  subcategory_id?: string;
+  category_name?: string;
+  category_slug?: string;
+  subcategory_name?: string;
+  subcategory_slug?: string;
+  featured: boolean;
+  image_url?: string;
+  status: string;
+}
+
+export interface Subcategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  subcategories: Subcategory[];
+}
 
 interface CourseContextProps {
   courses: Course[];
   categories: Category[];
   featuredCourses: Course[];
-  getCourseBySlug: (slug: string) => Course | undefined;
-  getCategoryBySlug: (slug: string) => Category | undefined;
-  getSubcategoryBySlug: (categorySlug: string, subcategorySlug: string) => any | undefined;
-  getCoursesByCategory: (categoryId: string) => Course[];
-  getCoursesBySubcategory: (subcategoryId: string) => Course[];
-  searchCourses: (query: string) => Course[];
+  loading: boolean;
+  getCourseBySlug: (slug: string) => Promise<Course | undefined>;
+  getCategoryBySlug: (slug: string) => Promise<Category | undefined>;
+  getSubcategoryBySlug: (categorySlug: string, subcategorySlug: string) => Promise<Subcategory | undefined>;
+  getCoursesByCategory: (categoryId: string) => Promise<Course[]>;
+  getCoursesBySubcategory: (subcategoryId: string) => Promise<Course[]>;
+  searchCourses: (query: string) => Promise<Course[]>;
 }
 
 const CourseContext = createContext<CourseContextProps | undefined>(undefined);
 
 export const CourseProvider = ({ children }: { children: ReactNode }) => {
-  const [courseData] = useState<Course[]>(courses);
-  const [categoryData] = useState<Category[]>(categories);
+  const [courseData, setCourseData] = useState<Course[]>([]);
+  const [categoryData, setCategoryData] = useState<Category[]>([]);
+  const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const { toast } = useToast();
 
-  const featuredCourses = courseData.filter(course => course.featured);
+  // Fetch initial data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch categories
+        const categoriesResult = await db.categories.getAll();
+        setCategoryData(categoriesResult);
+        
+        // Fetch featured courses
+        const featuredResult = await db.courses.getFeatured();
+        setFeaturedCourses(featuredResult);
+        
+        // Fetch all courses
+        const coursesResult = await db.courses.getAll();
+        setCourseData(coursesResult);
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching initial data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load course data. Please try again later.",
+          variant: "destructive",
+        });
+        setLoading(false);
+      }
+    };
 
-  const getCourseBySlug = (slug: string) => {
-    return courseData.find(course => course.slug === slug);
+    fetchData();
+  }, [toast]);
+
+  const getCourseBySlug = async (slug: string) => {
+    try {
+      return await db.courses.getBySlug(slug);
+    } catch (error) {
+      console.error('Error fetching course by slug:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load course details. Please try again later.",
+        variant: "destructive",
+      });
+      return undefined;
+    }
   };
 
-  const getCategoryBySlug = (slug: string) => {
-    return categoryData.find(category => category.slug === slug);
+  const getCategoryBySlug = async (slug: string) => {
+    try {
+      return await db.categories.getBySlug(slug);
+    } catch (error) {
+      console.error('Error fetching category by slug:', error);
+      return undefined;
+    }
   };
 
-  const getSubcategoryBySlug = (categorySlug: string, subcategorySlug: string) => {
-    const category = getCategoryBySlug(categorySlug);
-    if (!category) return undefined;
-    return category.subcategories.find(subcategory => subcategory.slug === subcategorySlug);
+  const getSubcategoryBySlug = async (categorySlug: string, subcategorySlug: string) => {
+    try {
+      const category = await getCategoryBySlug(categorySlug);
+      if (!category) return undefined;
+      return category.subcategories.find(sub => sub.slug === subcategorySlug);
+    } catch (error) {
+      console.error('Error fetching subcategory by slug:', error);
+      return undefined;
+    }
   };
 
-  const getCoursesByCategory = (categoryId: string) => {
-    return courseData.filter(course => course.category === categoryId);
+  const getCoursesByCategory = async (categoryId: string) => {
+    try {
+      return await db.courses.getByCategory(categoryId);
+    } catch (error) {
+      console.error('Error fetching courses by category:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load courses. Please try again later.",
+        variant: "destructive",
+      });
+      return [];
+    }
   };
 
-  const getCoursesBySubcategory = (subcategoryId: string) => {
-    return courseData.filter(course => course.subcategory === subcategoryId);
+  const getCoursesBySubcategory = async (subcategoryId: string) => {
+    try {
+      return await db.courses.getBySubcategory(subcategoryId);
+    } catch (error) {
+      console.error('Error fetching courses by subcategory:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load courses. Please try again later.",
+        variant: "destructive",
+      });
+      return [];
+    }
   };
 
-  const searchCourses = (query: string) => {
-    const lowerCaseQuery = query.toLowerCase().trim();
-    if (!lowerCaseQuery) return [];
-    
-    return courseData.filter(course => 
-      course.title.toLowerCase().includes(lowerCaseQuery) || 
-      course.shortDescription.toLowerCase().includes(lowerCaseQuery) ||
-      course.fullDescription.toLowerCase().includes(lowerCaseQuery) // Changed from description to fullDescription
-    );
+  const searchCourses = async (query: string) => {
+    try {
+      const lowerCaseQuery = query.toLowerCase().trim();
+      if (!lowerCaseQuery) return [];
+      
+      return await db.courses.search(query);
+    } catch (error) {
+      console.error('Error searching courses:', error);
+      toast({
+        title: "Error",
+        description: "Search failed. Please try again.",
+        variant: "destructive",
+      });
+      return [];
+    }
   };
 
   return (
@@ -61,6 +177,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
         courses: courseData,
         categories: categoryData,
         featuredCourses,
+        loading,
         getCourseBySlug,
         getCategoryBySlug,
         getSubcategoryBySlug,

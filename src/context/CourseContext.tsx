@@ -42,8 +42,8 @@ interface CourseContextProps {
   categories: Category[];
   featuredCourses: Course[];
   loading: boolean;
-  getCourseBySlug: (slug: string) => Promise<Course | undefined>;
-  getCategoryBySlug: (slug: string) => Promise<Category | undefined>;
+  getCourseBySlug: (slug: string) => Promise<Course>;
+  getCategoryBySlug: (slug: string) => Promise<Category>;
   getSubcategoryBySlug: (categorySlug: string, subcategorySlug: string) => Promise<Subcategory | undefined>;
   getCoursesByCategory: (categoryId: string) => Promise<Course[]>;
   getCoursesBySubcategory: (subcategoryId: string) => Promise<Course[]>;
@@ -92,7 +92,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
     fetchData();
   }, [toast]);
 
-  const getCourseBySlug = async (slug: string) => {
+  const getCourseBySlug = async (slug: string): Promise<Course> => {
     try {
       return await db.courses.getBySlug(slug);
     } catch (error) {
@@ -102,23 +102,22 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
         description: "Failed to load course details. Please try again later.",
         variant: "destructive",
       });
-      return undefined;
+      throw error;
     }
   };
 
-  const getCategoryBySlug = async (slug: string) => {
+  const getCategoryBySlug = async (slug: string): Promise<Category> => {
     try {
       return await db.categories.getBySlug(slug);
     } catch (error) {
       console.error('Error fetching category by slug:', error);
-      return undefined;
+      throw error;
     }
   };
 
-  const getSubcategoryBySlug = async (categorySlug: string, subcategorySlug: string) => {
+  const getSubcategoryBySlug = async (categorySlug: string, subcategorySlug: string): Promise<Subcategory | undefined> => {
     try {
       const category = await getCategoryBySlug(categorySlug);
-      if (!category) return undefined;
       return category.subcategories.find(sub => sub.slug === subcategorySlug);
     } catch (error) {
       console.error('Error fetching subcategory by slug:', error);
@@ -126,7 +125,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const getCoursesByCategory = async (categoryId: string) => {
+  const getCoursesByCategory = async (categoryId: string): Promise<Course[]> => {
     try {
       return await db.courses.getByCategory(categoryId);
     } catch (error) {
@@ -140,7 +139,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const getCoursesBySubcategory = async (subcategoryId: string) => {
+  const getCoursesBySubcategory = async (subcategoryId: string): Promise<Course[]> => {
     try {
       return await db.courses.getBySubcategory(subcategoryId);
     } catch (error) {
@@ -154,7 +153,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const searchCourses = async (query: string) => {
+  const searchCourses = async (query: string): Promise<Course[]> => {
     try {
       const lowerCaseQuery = query.toLowerCase().trim();
       if (!lowerCaseQuery) return [];

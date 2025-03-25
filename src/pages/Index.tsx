@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/sections/HeroSection';
@@ -11,13 +11,39 @@ import StatisticsSection from '@/components/sections/StatisticsSection';
 import CTASection from '@/components/sections/CTASection';
 import useVisibilityObserver from '@/hooks/useVisibilityObserver';
 import { heroSlides, statistics, partners, companyInfo } from '@/utils/mockData';
-import { useCourses } from '@/context/CourseContext';
+import { Category, Course, useCourses } from '@/context/CourseContext';
 
 const Index = () => {
-  const { categories, featuredCourses } = useCourses();
+  const { categories, featuredCourses, loading } = useCourses();
+  const [mockCategories, setMockCategories] = useState<any[]>([]);
+  const [mockFeatured, setMockFeatured] = useState<any[]>([]);
+  
   const visibleElements = useVisibilityObserver({
     sectionIds: ['about', 'partners', 'categories', 'courses', 'stats', 'cta']
   });
+  
+  // Convert Course context data to format expected by components
+  useEffect(() => {
+    if (categories && categories.length > 0) {
+      const formattedCategories = categories.map(cat => ({
+        ...cat,
+        image: `/categories/${cat.slug}.jpg` // Assuming images follow this pattern
+      }));
+      setMockCategories(formattedCategories);
+    }
+    
+    if (featuredCourses && featuredCourses.length > 0) {
+      const formattedCourses = featuredCourses.map(course => ({
+        ...course,
+        image: course.image_url || '/placeholder.svg',
+        shortDescription: course.short_description,
+        category: course.category_name || '',
+        duration: course.duration || '4 weeks',
+        level: course.level || 'Beginner'
+      }));
+      setMockFeatured(formattedCourses);
+    }
+  }, [categories, featuredCourses]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -33,7 +59,7 @@ const Index = () => {
           isVisible={visibleElements.about} 
         />
         
-        {/* Partners Section - MOVED to appear after About section */}
+        {/* Partners Section */}
         <PartnersSection 
           partners={partners} 
           isVisible={visibleElements.partners} 
@@ -41,13 +67,13 @@ const Index = () => {
         
         {/* Course Categories Section */}
         <CategoriesSection 
-          categories={categories} 
+          categories={mockCategories} 
           isVisible={visibleElements.categories} 
         />
         
         {/* Featured Courses Section */}
         <CoursesSection 
-          featuredCourses={featuredCourses} 
+          featuredCourses={mockFeatured} 
           isVisible={visibleElements.courses} 
         />
         

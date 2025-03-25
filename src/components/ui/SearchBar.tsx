@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useCourses } from '@/context/CourseContext';
 import { useNavigate } from 'react-router-dom';
-import { Course } from '@/utils/mockData';
+import { Course } from '@/context/CourseContext';
 
 interface SearchBarProps {
   className?: string;
@@ -15,6 +15,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ className }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { searchCourses } = useCourses();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLDivElement>(null);
@@ -35,14 +36,26 @@ const SearchBar: React.FC<SearchBarProps> = ({ className }) => {
 
   useEffect(() => {
     // Update suggestions as user types
-    if (searchQuery.trim().length > 2) {
-      const results = searchCourses(searchQuery);
-      setSuggestions(results.slice(0, 5)); // Limit to 5 suggestions
-      setShowSuggestions(true);
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
+    const fetchSuggestions = async () => {
+      if (searchQuery.trim().length > 2) {
+        setIsLoading(true);
+        try {
+          const results = await searchCourses(searchQuery);
+          setSuggestions(results.slice(0, 5)); // Limit to 5 suggestions
+          setShowSuggestions(true);
+        } catch (error) {
+          console.error('Error fetching search suggestions:', error);
+          setSuggestions([]);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    };
+
+    fetchSuggestions();
   }, [searchQuery, searchCourses]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -104,11 +117,15 @@ const SearchBar: React.FC<SearchBarProps> = ({ className }) => {
               className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-start"
             >
               <div className="w-10 h-10 rounded-md overflow-hidden mr-3 flex-shrink-0">
-                <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
+                <img 
+                  src={course.image_url || '/placeholder.svg'} 
+                  alt={course.title} 
+                  className="w-full h-full object-cover" 
+                />
               </div>
               <div className="overflow-hidden">
                 <div className="font-medium text-sm truncate">{course.title}</div>
-                <div className="text-xs text-gray-500 truncate">{course.shortDescription}</div>
+                <div className="text-xs text-gray-500 truncate">{course.short_description}</div>
               </div>
             </div>
           ))}
@@ -118,6 +135,12 @@ const SearchBar: React.FC<SearchBarProps> = ({ className }) => {
           >
             View all results for "{searchQuery}"
           </div>
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="absolute z-50 mt-1 w-full bg-white rounded-md shadow-lg border border-gray-200 py-4 text-center">
+          <div className="text-sm text-gray-500">Loading...</div>
         </div>
       )}
     </div>

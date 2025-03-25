@@ -6,7 +6,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CategoryCard from '@/components/ui/CategoryCard';
 import CourseCard from '@/components/ui/CourseCard';
-import { useCourses } from '@/context/CourseContext';
+import { useCourses, Category, Subcategory, Course } from '@/context/CourseContext';
 
 const Courses = () => {
   const { categorySlug, subcategorySlug } = useParams<{ categorySlug?: string; subcategorySlug?: string }>();
@@ -22,44 +22,51 @@ const Courses = () => {
     getCoursesBySubcategory
   } = useCourses();
 
-  const [currentCategory, setCurrentCategory] = useState<any>(null);
-  const [currentSubcategory, setCurrentSubcategory] = useState<any>(null);
-  const [filteredCourses, setFilteredCourses] = useState<any[]>([]);
+  const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
+  const [currentSubcategory, setCurrentSubcategory] = useState<Subcategory | null>(null);
+  const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
 
   useEffect(() => {
-    setIsLoading(true);
-    
-    // Simulate loading delay
-    setTimeout(() => {
-      if (categorySlug && subcategorySlug) {
-        // Display courses for a specific subcategory
-        const category = getCategoryBySlug(categorySlug);
-        const subcategory = getSubcategoryBySlug(categorySlug, subcategorySlug);
-        
-        if (category && subcategory) {
-          setCurrentCategory(category);
-          setCurrentSubcategory(subcategory);
-          setFilteredCourses(getCoursesBySubcategory(subcategory.id));
-        }
-      } else if (categorySlug) {
-        // Display subcategories for a specific category
-        const category = getCategoryBySlug(categorySlug);
-        
-        if (category) {
-          setCurrentCategory(category);
-          setCurrentSubcategory(null);
-          setFilteredCourses(getCoursesByCategory(category.id));
-        }
-      } else {
-        // Display all categories
-        setCurrentCategory(null);
-        setCurrentSubcategory(null);
-        setFilteredCourses([]);
-      }
+    const fetchData = async () => {
+      setIsLoading(true);
       
-      setIsLoading(false);
-    }, 500);
-  }, [categorySlug, subcategorySlug]);
+      try {
+        if (categorySlug && subcategorySlug) {
+          // Display courses for a specific subcategory
+          const category = await getCategoryBySlug(categorySlug);
+          const subcategory = await getSubcategoryBySlug(categorySlug, subcategorySlug);
+          
+          if (category && subcategory) {
+            setCurrentCategory(category);
+            setCurrentSubcategory(subcategory);
+            const courses = await getCoursesBySubcategory(subcategory.id);
+            setFilteredCourses(courses);
+          }
+        } else if (categorySlug) {
+          // Display subcategories for a specific category
+          const category = await getCategoryBySlug(categorySlug);
+          
+          if (category) {
+            setCurrentCategory(category);
+            setCurrentSubcategory(null);
+            const courses = await getCoursesByCategory(category.id);
+            setFilteredCourses(courses);
+          }
+        } else {
+          // Display all categories
+          setCurrentCategory(null);
+          setCurrentSubcategory(null);
+          setFilteredCourses([]);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [categorySlug, subcategorySlug, getCategoryBySlug, getSubcategoryBySlug, getCoursesByCategory, getCoursesBySubcategory]);
 
   const renderPageTitle = () => {
     if (currentSubcategory) {
@@ -116,11 +123,11 @@ const Courses = () => {
               
               {(currentCategory || currentSubcategory) && (
                 <Link
-                  to={currentSubcategory ? `/courses/${currentCategory.slug}` : "/courses"}
+                  to={currentSubcategory ? `/courses/${currentCategory?.slug}` : "/courses"}
                   className="inline-flex items-center text-sm font-medium text-brand-900 hover:text-brand-800 transition-colors"
                 >
                   <ArrowLeft size={16} className="mr-1" />
-                  Back to {currentSubcategory ? currentCategory.name : "All Categories"}
+                  Back to {currentSubcategory ? currentCategory?.name : "All Categories"}
                 </Link>
               )}
             </div>
@@ -174,7 +181,10 @@ const Courses = () => {
                   {categories.map((category) => (
                     <CategoryCard 
                       key={category.id} 
-                      item={category} 
+                      item={{
+                        ...category,
+                        image: category.image || `/categories/${category.slug}.jpg`
+                      }}
                       type="category"
                     />
                   ))}
@@ -184,10 +194,13 @@ const Courses = () => {
               {currentCategory && !currentSubcategory && (
                 // Show subcategories for a specific category
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {currentCategory.subcategories.map((subcategory: any) => (
+                  {currentCategory.subcategories.map((subcategory) => (
                     <CategoryCard 
                       key={subcategory.id} 
-                      item={subcategory} 
+                      item={{
+                        ...subcategory,
+                        image: subcategory.image || '/placeholder.svg'
+                      }}
                       type="subcategory"
                       parentSlug={currentCategory.slug}
                     />
@@ -204,7 +217,11 @@ const Courses = () => {
                         {filteredCourses.map((course) => (
                           <CourseCard 
                             key={course.id} 
-                            course={course}
+                            course={{
+                              ...course,
+                              image: course.image_url || '/placeholder.svg',
+                              sessions: course.sessions || []
+                            }}
                             showDates={true}
                           />
                         ))}
@@ -219,7 +236,7 @@ const Courses = () => {
                             <div className="flex flex-col md:flex-row">
                               <div className="md:w-1/3 lg:w-1/4">
                                 <img 
-                                  src={course.image} 
+                                  src={course.image_url || '/placeholder.svg'} 
                                   alt={course.title} 
                                   className="w-full h-48 md:h-full object-cover"
                                 />
@@ -229,10 +246,10 @@ const Courses = () => {
                                   {course.title}
                                 </h3>
                                 <p className="text-gray-600 mb-4">
-                                  {course.shortDescription}
+                                  {course.short_description}
                                 </p>
                                 
-                                {course.sessions.length > 0 && (
+                                {course.sessions && course.sessions.length > 0 && (
                                   <div className="mb-5 space-y-2">
                                     {course.sessions.slice(0, 2).map((session: any) => (
                                       <div key={session.id} className="flex flex-col sm:flex-row sm:items-center text-sm text-gray-500 p-2 bg-gray-50 rounded-md">

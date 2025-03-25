@@ -2,10 +2,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Category, Subcategory } from '@/utils/mockData';
+
+interface CategoryItem {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string;
+}
 
 interface CategoryCardProps {
-  item: Category | Subcategory;
+  item: CategoryItem;
   type: 'category' | 'subcategory';
   parentSlug?: string;
   className?: string;
@@ -20,6 +26,8 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   const linkPath = type === 'category' 
     ? `/courses/${item.slug}` 
     : `/courses/${parentSlug}/${item.slug}`;
+    
+  const imageUrl = item.image || `/categories/${item.slug}.jpg`;
 
   return (
     <Link
@@ -31,7 +39,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
     >
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10" />
       <img
-        src={item.image}
+        src={imageUrl}
         alt={item.name}
         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
       />

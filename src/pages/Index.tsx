@@ -11,7 +11,7 @@ import StatisticsSection from '@/components/sections/StatisticsSection';
 import CTASection from '@/components/sections/CTASection';
 import useVisibilityObserver from '@/hooks/useVisibilityObserver';
 import { heroSlides, statistics, partners, companyInfo } from '@/utils/mockData';
-import { Category, Course, useCourses } from '@/context/CourseContext';
+import { useCourses, Category, Course } from '@/context/CourseContext';
 
 const Index = () => {
   const { categories, featuredCourses, loading } = useCourses();
@@ -27,7 +27,7 @@ const Index = () => {
     if (categories && categories.length > 0) {
       const formattedCategories = categories.map(cat => ({
         ...cat,
-        image: `/categories/${cat.slug}.jpg` // Assuming images follow this pattern
+        image: cat.image || `/categories/${cat.slug}.jpg` // Use existing image or fallback
       }));
       setMockCategories(formattedCategories);
     }
@@ -39,7 +39,8 @@ const Index = () => {
         shortDescription: course.short_description,
         category: course.category_name || '',
         duration: course.duration || '4 weeks',
-        level: course.level || 'Beginner'
+        level: course.level || 'Beginner',
+        sessions: course.sessions || []
       }));
       setMockFeatured(formattedCourses);
     }

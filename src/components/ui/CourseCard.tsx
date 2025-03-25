@@ -3,11 +3,28 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Course } from '@/utils/mockData';
 import { format } from 'date-fns';
 
+interface Session {
+  id: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+}
+
+interface CourseProps {
+  id: string;
+  title: string;
+  slug: string;
+  short_description?: string;
+  shortDescription?: string;
+  image?: string;
+  image_url?: string;
+  sessions: Session[];
+}
+
 interface CourseCardProps {
-  course: Course;
+  course: CourseProps;
   className?: string;
   showDates?: boolean;
 }
@@ -17,8 +34,14 @@ const CourseCard: React.FC<CourseCardProps> = ({
   className,
   showDates = true
 }) => {
+  // Use the appropriate description field (API might return short_description, component might expect shortDescription)
+  const description = course.short_description || course.shortDescription || '';
+  
+  // Use the appropriate image field (API might return image_url, component might expect image)
+  const imageUrl = course.image_url || course.image || '/placeholder.svg';
+  
   // Format the dates if we have sessions
-  const upcomingSessions = course.sessions.length > 0 
+  const upcomingSessions = course.sessions && course.sessions.length > 0 
     ? course.sessions.slice(0, 1).map(session => ({
         ...session,
         formattedStartDate: format(new Date(session.startDate), 'MMM d, yyyy'),
@@ -35,7 +58,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
     >
       <div className="relative overflow-hidden h-48">
         <img 
-          src={course.image} 
+          src={imageUrl} 
           alt={course.title} 
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
@@ -56,7 +79,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
         </h3>
         
         <p className="text-gray-600 mb-4 line-clamp-2">
-          {course.shortDescription}
+          {description}
         </p>
         
         {showDates && upcomingSessions.length > 0 && (

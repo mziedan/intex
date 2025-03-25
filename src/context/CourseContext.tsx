@@ -22,12 +22,14 @@ export interface Course {
   featured: boolean;
   image_url?: string;
   status: string;
+  sessions?: any[]; // Added sessions array
 }
 
 export interface Subcategory {
   id: string;
   name: string;
   slug: string;
+  image?: string; // Added image property
 }
 
 export interface Category {
@@ -35,6 +37,7 @@ export interface Category {
   name: string;
   slug: string;
   subcategories: Subcategory[];
+  image?: string; // Added image property
 }
 
 interface CourseContextProps {
@@ -102,7 +105,21 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
         description: "Failed to load course details. Please try again later.",
         variant: "destructive",
       });
-      throw error;
+      // Return a default course object to prevent null issues
+      return {
+        id: '',
+        title: 'Error loading course',
+        slug: '',
+        short_description: '',
+        description: '',
+        price: 0,
+        duration: '',
+        level: '',
+        category_id: '',
+        featured: false,
+        status: 'draft',
+        sessions: []
+      };
     }
   };
 
@@ -111,7 +128,14 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
       return await db.categories.getBySlug(slug);
     } catch (error) {
       console.error('Error fetching category by slug:', error);
-      throw error;
+      // Return a default category to prevent null issues
+      return {
+        id: '',
+        name: 'Error loading category',
+        slug: '',
+        subcategories: [],
+        image: '/placeholder.svg'
+      };
     }
   };
 

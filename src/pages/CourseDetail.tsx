@@ -5,15 +5,15 @@ import { Calendar, Clock, MapPin, Users, ChevronDown, ChevronUp } from 'lucide-r
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ContactForm from '@/components/ui/ContactForm';
-import { useCourses } from '@/context/CourseContext';
+import { useCourses, Course, Category } from '@/context/CourseContext';
 import { format } from 'date-fns';
 
 const CourseDetail = () => {
   const { courseSlug } = useParams<{ courseSlug: string }>();
   const { getCourseBySlug, getCategoryBySlug } = useCourses();
   
-  const [course, setCourse] = useState<any>(null);
-  const [category, setCategory] = useState<any>(null);
+  const [course, setCourse] = useState<Course | null>(null);
+  const [category, setCategory] = useState<Category | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({
@@ -23,24 +23,29 @@ const CourseDetail = () => {
   });
 
   useEffect(() => {
-    if (!courseSlug) return;
-    
-    setIsLoading(true);
-    setSelectedSession(null);
-    
-    // Simulate loading delay
-    setTimeout(() => {
-      const foundCourse = getCourseBySlug(courseSlug);
-      setCourse(foundCourse);
+    const fetchData = async () => {
+      if (!courseSlug) return;
       
-      if (foundCourse) {
-        const foundCategory = getCategoryBySlug(foundCourse.category);
-        setCategory(foundCategory);
+      setIsLoading(true);
+      setSelectedSession(null);
+      
+      try {
+        const fetchedCourse = await getCourseBySlug(courseSlug);
+        setCourse(fetchedCourse);
+        
+        if (fetchedCourse && fetchedCourse.category_id) {
+          const fetchedCategory = await getCategoryBySlug(fetchedCourse.category_slug || '');
+          setCategory(fetchedCategory);
+        }
+      } catch (error) {
+        console.error("Error fetching course details:", error);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
-    }, 500);
-  }, [courseSlug]);
+    };
+    
+    fetchData();
+  }, [courseSlug, getCourseBySlug, getCategoryBySlug]);
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({
@@ -98,7 +103,9 @@ const CourseDetail = () => {
     );
   }
 
-  const selectedSessionData = course.sessions.find((s: any) => s.id === selectedSession);
+  // Ensure sessions is an array
+  const sessions = course.sessions || [];
+  const selectedSessionData = sessions.find((s: any) => s.id === selectedSession);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -109,7 +116,7 @@ const CourseDetail = () => {
         <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
           <div className="absolute inset-0 bg-black/40 z-10" />
           <img 
-            src={course.image} 
+            src={course.image_url || '/placeholder.svg'} 
             alt={course.title} 
             className="w-full h-full object-cover"
           />
@@ -160,7 +167,7 @@ const CourseDetail = () => {
                 {expandedSections.description && (
                   <div className="p-6">
                     <p className="text-gray-700 whitespace-pre-line">
-                      {course.fullDescription}
+                      {course.description}
                     </p>
                   </div>
                 )}
@@ -180,9 +187,9 @@ const CourseDetail = () => {
                 
                 {expandedSections.sessions && (
                   <div className="p-6">
-                    {course.sessions.length > 0 ? (
+                    {sessions.length > 0 ? (
                       <div className="space-y-4">
-                        {course.sessions.map((session: any) => {
+                        {sessions.map((session: any) => {
                           const startDate = new Date(session.startDate);
                           const endDate = new Date(session.endDate);
                           const isSelected = session.id === selectedSession;
@@ -253,7 +260,7 @@ const CourseDetail = () => {
                 
                 {expandedSections.registration && (
                   <div className="p-6">
-                    {selectedSession ? (
+                    {selectedSession && selectedSessionData ? (
                       <>
                         <div className="mb-6 p-4 bg-gray-50 rounded-md">
                           <h3 className="font-bold mb-2">Selected Session</h3>
@@ -307,7 +314,7 @@ const CourseDetail = () => {
               <div className="bg-white rounded-lg shadow-md overflow-hidden sticky top-24">
                 <div className="p-6 border-b">
                   <h3 className="text-xl font-bold mb-1">Course Information</h3>
-                  <p className="text-gray-600">{course.shortDescription}</p>
+                  <p className="text-gray-600">{course.short_description}</p>
                 </div>
                 
                 <div className="p-6 space-y-4">
@@ -326,8 +333,8 @@ const CourseDetail = () => {
                   <div className="flex items-center text-sm">
                     <span className="w-1/3 text-gray-500">Next session:</span>
                     <span className="font-medium">
-                      {course.sessions.length > 0 
-                        ? format(new Date(course.sessions[0].startDate), 'MMMM d, yyyy')
+                      {sessions.length > 0 
+                        ? format(new Date(sessions[0].startDate), 'MMMM d, yyyy')
                         : 'Not scheduled'
                       }
                     </span>
@@ -336,18 +343,18 @@ const CourseDetail = () => {
                   <div className="flex items-start text-sm">
                     <span className="w-1/3 text-gray-500">Locations:</span>
                     <div>
-                      {course.sessions.length > 0 
-                        ? [...new Set(course.sessions.map((s: any) => s.location))].join(', ')
+                      {sessions.length > 0 
+                        ? [...new Set(sessions.map((s: any) => s.location))].join(', ')
                         : 'TBD'
                       }
                     </div>
                   </div>
                   
                   <div className="pt-4 mt-4 border-t">
-                    {course.sessions.length > 0 ? (
+                    {sessions.length > 0 ? (
                       <button
                         onClick={() => {
-                          handleSessionSelect(course.sessions[0].id);
+                          handleSessionSelect(sessions[0].id);
                         }}
                         className="w-full bg-brand-900 hover:bg-brand-800 text-white py-3 rounded-md transition-colors font-medium"
                       >

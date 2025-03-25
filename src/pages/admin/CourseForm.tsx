@@ -1,11 +1,11 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCourses } from '@/context/CourseContext';
+import { useCourses, Course, Category } from '@/context/CourseContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -50,34 +50,71 @@ const CourseForm = () => {
   const { toast } = useToast();
   const { categories, getCourseBySlug } = useCourses();
   
-  const [selectedCategory, setSelectedCategory] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  
-  // Get course if in edit mode
-  const course = isEditMode ? getCourseBySlug(courseId) : null;
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [loadingCourse, setLoadingCourse] = useState(isEditMode);
+  const [currentCourse, setCurrentCourse] = useState<Course | null>(null);
   
   // Setup form with default values
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: course?.title || "",
-      shortDescription: course?.shortDescription || "",
-      description: course?.fullDescription || "",
-      category: course?.category || "",
-      subcategory: course?.subcategory || "",
-      price: course?.price?.toString() || "",
-      duration: course?.duration || "",
-      level: course?.level || "",
+      title: "",
+      shortDescription: "",
+      description: "",
+      category: "",
+      subcategory: "",
+      price: "",
+      duration: "",
+      level: "",
       status: "active" // Default status for new courses
     },
   });
   
-  // Initialize rich text editor with course description
-  React.useEffect(() => {
-    if (course?.fullDescription) {
-      setDescription(course.fullDescription);
-    }
-  }, [course]);
+  // Load course data if in edit mode
+  useEffect(() => {
+    const fetchCourse = async () => {
+      if (isEditMode && courseId) {
+        setLoadingCourse(true);
+        try {
+          const course = await getCourseBySlug(courseId);
+          setCurrentCourse(course);
+          
+          // Update form values
+          form.reset({
+            title: course.title || "",
+            shortDescription: course.short_description || "",
+            description: course.description || "",
+            category: course.category_id || "",
+            subcategory: course.subcategory_id || "",
+            price: course.price?.toString() || "",
+            duration: course.duration || "",
+            level: course.level || "",
+            status: course.status || "active"
+          });
+          
+          // Set description for rich text editor
+          setDescription(course.description || "");
+          
+          // Set selected category
+          if (course.category_id) {
+            setSelectedCategory(course.category_id);
+          }
+        } catch (error) {
+          console.error("Error loading course:", error);
+          toast({
+            title: "Error",
+            description: "Failed to load course data. Please try again.",
+            variant: "destructive",
+          });
+        } finally {
+          setLoadingCourse(false);
+        }
+      }
+    };
+    
+    fetchCourse();
+  }, [courseId, isEditMode, getCourseBySlug, form, toast]);
   
   // On category change, reset subcategory
   const handleCategoryChange = (value: string) => {
@@ -91,13 +128,6 @@ const CourseForm = () => {
     const category = categories.find(c => c.id === selectedCategory);
     return category ? category.subcategories : [];
   }, [selectedCategory, categories]);
-  
-  // Initialize selected category from form values or course
-  React.useEffect(() => {
-    if (course?.category) {
-      setSelectedCategory(course.category);
-    }
-  }, [course]);
   
   // Update form value when rich text editor changes
   const handleDescriptionChange = (content: string) => {
@@ -122,6 +152,19 @@ const CourseForm = () => {
     
     // Navigate back to courses list
     navigate("/admin/courses");
+  }
+  
+  if (loadingCourse) {
+    return (
+      <AdminLayout 
+        title="Loading Course..." 
+        breadcrumb="Loading..."
+      >
+        <div className="flex justify-center items-center h-64">
+          <div className="inline-block w-10 h-10 border-4 border-gray-200 border-t-brand-900 rounded-full animate-spin"></div>
+        </div>
+      </AdminLayout>
+    );
   }
   
   return (

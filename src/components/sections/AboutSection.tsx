@@ -2,7 +2,22 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Award, Target, Clock, Users } from 'lucide-react';
-import { CompanyInfo } from '@/utils/mockData';
+
+// Define CompanyInfo interface locally instead of importing it
+interface CompanyInfo {
+  name: string;
+  description: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  socialMedia?: {
+    facebook?: string;
+    twitter?: string;
+    linkedin?: string;
+    instagram?: string;
+  };
+  mapLocation?: string;
+}
 
 interface AboutSectionProps {
   companyInfo: CompanyInfo;

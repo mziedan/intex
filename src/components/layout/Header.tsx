@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -5,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import NavigationMenu from './NavigationMenu';
 import SearchBar from '@/components/ui/SearchBar';
-import useMobile from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/context/AuthContext';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useLanguage } from '@/context/LanguageContext';
@@ -13,7 +14,7 @@ import { useLanguage } from '@/context/LanguageContext';
 const Header = () => {
   const { t } = useLanguage();
   const location = useLocation();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
@@ -60,7 +61,7 @@ const Header = () => {
           {!isMobile && (
             <div className="flex items-center space-x-6">
               <NavigationMenu isScrolled={isScrolled} isHomePage={location.pathname === '/'} />
-              <SearchBar placeholder={t('search')} />
+              <SearchBar />
               <LanguageSwitcher />
               
               {user ? (
@@ -117,7 +118,7 @@ const Header = () => {
               onItemClick={() => setMobileMenuOpen(false)}
             />
             <div className="mt-4">
-              <SearchBar placeholder={t('search')} />
+              <SearchBar />
             </div>
             <div className="mt-4 flex flex-col space-y-2">
               {user ? (

@@ -29,6 +29,8 @@ import {
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Save } from 'lucide-react';
+import ImageUpload from '@/components/ui/ImageUpload';
+import { useImageUpload } from '@/services/uploadService';
 
 // Form schema
 const formSchema = z.object({
@@ -40,7 +42,8 @@ const formSchema = z.object({
   price: z.string().min(1, { message: "Please enter a price" }),
   duration: z.string().min(1, { message: "Please enter duration" }),
   level: z.string().min(1, { message: "Please select a level" }),
-  status: z.string().min(1, { message: "Please select a status" })
+  status: z.string().min(1, { message: "Please select a status" }),
+  imageUrl: z.string().optional()
 });
 
 const CourseForm = () => {
@@ -49,6 +52,7 @@ const CourseForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { categories, getCourseBySlug } = useCourses();
+  const { uploadImageWithToast } = useImageUpload();
   
   const [selectedCategory, setSelectedCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -67,7 +71,8 @@ const CourseForm = () => {
       price: "",
       duration: "",
       level: "",
-      status: "active" // Default status for new courses
+      status: "active", // Default status for new courses
+      imageUrl: ""
     },
   });
   
@@ -90,7 +95,8 @@ const CourseForm = () => {
             price: course.price?.toString() || "",
             duration: course.duration || "",
             level: course.level || "",
-            status: course.status || "active"
+            status: course.status || "active",
+            imageUrl: course.image_url || ""
           });
           
           // Set description for rich text editor
@@ -133,6 +139,14 @@ const CourseForm = () => {
   const handleDescriptionChange = (content: string) => {
     setDescription(content);
     form.setValue("description", content);
+  };
+  
+  // Handle image upload
+  const handleImageUpload = async (file: File) => {
+    const imageUrl = await uploadImageWithToast(file, 'courses');
+    if (imageUrl) {
+      form.setValue("imageUrl", imageUrl);
+    }
   };
   
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -332,6 +346,27 @@ const CourseForm = () => {
                 )}
               />
             </div>
+            
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Course Image</FormLabel>
+                  <FormControl>
+                    <ImageUpload 
+                      currentImage={field.value}
+                      onImageUpload={handleImageUpload}
+                      onImageRemove={() => form.setValue("imageUrl", "")}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Upload an image for this course
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
             <FormField
               control={form.control}

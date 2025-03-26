@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ImageUpload from '@/components/ui/ImageUpload';
+import { useImageUpload } from '@/services/uploadService';
 
 interface SliderImage {
   id: string;
@@ -18,6 +20,7 @@ interface SliderImage {
 
 const SliderManagement = () => {
   const { toast } = useToast();
+  const { uploadImageWithToast } = useImageUpload();
   const [sliders, setSliders] = useState<SliderImage[]>([
     {
       id: '1',
@@ -58,6 +61,18 @@ const SliderManagement = () => {
       title: "Success",
       description: "Slider image deleted successfully.",
     });
+  };
+  
+  const handleImageUpload = async (file: File) => {
+    if (!editingSlider) return;
+    
+    const imageUrl = await uploadImageWithToast(file, 'sliders');
+    if (imageUrl) {
+      setEditingSlider({
+        ...editingSlider,
+        imageUrl: imageUrl
+      });
+    }
   };
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -108,34 +123,18 @@ const SliderManagement = () => {
             </h3>
             
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="title">Title</Label>
-                  <Input 
-                    id="title"
-                    value={editingSlider?.title || ''}
-                    onChange={(e) => setEditingSlider({
-                      ...editingSlider!,
-                      title: e.target.value
-                    })}
-                    placeholder="Slider Title"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="imageUrl">Image URL</Label>
-                  <Input 
-                    id="imageUrl"
-                    value={editingSlider?.imageUrl || ''}
-                    onChange={(e) => setEditingSlider({
-                      ...editingSlider!,
-                      imageUrl: e.target.value
-                    })}
-                    placeholder="https://example.com/image.jpg"
-                    required
-                  />
-                </div>
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input 
+                  id="title"
+                  value={editingSlider?.title || ''}
+                  onChange={(e) => setEditingSlider({
+                    ...editingSlider!,
+                    title: e.target.value
+                  })}
+                  placeholder="Slider Title"
+                  required
+                />
               </div>
               
               <div>
@@ -149,6 +148,18 @@ const SliderManagement = () => {
                   })}
                   placeholder="Slider Caption"
                   required
+                />
+              </div>
+              
+              <div>
+                <Label>Image</Label>
+                <ImageUpload 
+                  currentImage={editingSlider?.imageUrl}
+                  onImageUpload={handleImageUpload}
+                  onImageRemove={() => setEditingSlider({
+                    ...editingSlider!,
+                    imageUrl: ''
+                  })}
                 />
               </div>
               

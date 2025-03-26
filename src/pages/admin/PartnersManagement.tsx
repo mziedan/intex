@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus, Trash2, Edit, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ImageUpload from '@/components/ui/ImageUpload';
+import { useImageUpload } from '@/services/uploadService';
 
 interface Partner {
   id: string;
@@ -16,6 +18,7 @@ interface Partner {
 
 const PartnersManagement = () => {
   const { toast } = useToast();
+  const { uploadImageWithToast } = useImageUpload();
   const [partners, setPartners] = useState<Partner[]>([
     {
       id: '1',
@@ -55,6 +58,18 @@ const PartnersManagement = () => {
       title: "Success",
       description: "Partner deleted successfully.",
     });
+  };
+  
+  const handleImageUpload = async (file: File) => {
+    if (!editingPartner) return;
+    
+    const imageUrl = await uploadImageWithToast(file, 'partners');
+    if (imageUrl) {
+      setEditingPartner({
+        ...editingPartner,
+        logo: imageUrl
+      });
+    }
   };
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -105,34 +120,30 @@ const PartnersManagement = () => {
             </h3>
             
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name">Partner Name</Label>
-                  <Input 
-                    id="name"
-                    value={editingPartner?.name || ''}
-                    onChange={(e) => setEditingPartner({
-                      ...editingPartner!,
-                      name: e.target.value
-                    })}
-                    placeholder="Company Name"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="logo">Logo URL</Label>
-                  <Input 
-                    id="logo"
-                    value={editingPartner?.logo || ''}
-                    onChange={(e) => setEditingPartner({
-                      ...editingPartner!,
-                      logo: e.target.value
-                    })}
-                    placeholder="https://example.com/logo.png"
-                    required
-                  />
-                </div>
+              <div>
+                <Label htmlFor="name">Partner Name</Label>
+                <Input 
+                  id="name"
+                  value={editingPartner?.name || ''}
+                  onChange={(e) => setEditingPartner({
+                    ...editingPartner!,
+                    name: e.target.value
+                  })}
+                  placeholder="Company Name"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label>Logo</Label>
+                <ImageUpload 
+                  currentImage={editingPartner?.logo}
+                  onImageUpload={handleImageUpload}
+                  onImageRemove={() => setEditingPartner({
+                    ...editingPartner!,
+                    logo: ''
+                  })}
+                />
               </div>
               
               <div>

@@ -19,12 +19,15 @@ import {
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Save } from 'lucide-react';
+import ImageUpload from '@/components/ui/ImageUpload';
+import { useImageUpload } from '@/services/uploadService';
 
 // Form schema
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   slug: z.string().min(2, { message: "Slug must be at least 2 characters" })
     .regex(/^[a-z0-9-]+$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens" }),
+  image: z.string().optional()
 });
 
 const CategoryForm = () => {
@@ -32,6 +35,7 @@ const CategoryForm = () => {
   const isEditMode = !!categoryId;
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { uploadImageWithToast } = useImageUpload();
   
   // Setup form with default values
   const form = useForm<z.infer<typeof formSchema>>({
@@ -39,6 +43,7 @@ const CategoryForm = () => {
     defaultValues: {
       name: "",
       slug: "",
+      image: ""
     },
   });
   
@@ -61,6 +66,13 @@ const CategoryForm = () => {
     if (!currentSlug || currentSlug === generateSlug(form.getValues("name"))) {
       const newSlug = generateSlug(name);
       form.setValue("slug", newSlug);
+    }
+  };
+  
+  const handleImageUpload = async (file: File) => {
+    const imageUrl = await uploadImageWithToast(file, 'categories');
+    if (imageUrl) {
+      form.setValue("image", imageUrl);
     }
   };
   
@@ -126,6 +138,27 @@ const CategoryForm = () => {
                   </FormControl>
                   <FormDescription>
                     The slug is used in the URL. It should be unique, lowercase, and contain only letters, numbers, and hyphens.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category Image</FormLabel>
+                  <FormControl>
+                    <ImageUpload 
+                      currentImage={field.value}
+                      onImageUpload={handleImageUpload}
+                      onImageRemove={() => form.setValue("image", "")}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Upload an image for this category (optional)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

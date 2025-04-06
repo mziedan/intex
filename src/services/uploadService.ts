@@ -1,7 +1,7 @@
 
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+import { v4 as uuidv4 } from 'uuid';
 
 // Helper function to check if we're in development mode
 const isDevelopment = () => {
@@ -10,29 +10,25 @@ const isDevelopment = () => {
 
 export async function uploadImage(file: File, folder: string): Promise<string> {
   try {
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('folder', folder);
-
-    // Add development header when in development mode
-    const headers: Record<string, string> = {};
-    if (isDevelopment()) {
-      headers['X-Development'] = 'true';
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${uuidv4()}.${fileExt}`;
+    const filePath = `${folder}/${fileName}`;
+    
+    // Upload file to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('images')
+      .upload(filePath, file);
+    
+    if (error) {
+      throw error;
     }
-
-    const response = await fetch(`${API_BASE_URL}/upload`, {
-      method: 'POST',
-      body: formData,
-      headers: headers
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to upload image');
-    }
-
-    const data = await response.json();
-    return data.imageUrl; // Return the URL of the uploaded image
+    
+    // Get public URL for the uploaded file
+    const { data: { publicUrl } } = supabase.storage
+      .from('images')
+      .getPublicUrl(filePath);
+    
+    return publicUrl;
   } catch (error) {
     console.error('Error uploading image:', error);
     throw error;

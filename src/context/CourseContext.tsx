@@ -1,43 +1,22 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import db from '../services/db';
 import { useToast } from '@/hooks/use-toast';
+import { Course as CourseType, Category as CategoryType, Subcategory as SubcategoryType } from '@/lib/supabase';
 
-export interface Course {
-  id: string;
-  title: string;
-  slug: string;
-  short_description: string;
-  description: string;
-  price: number;
-  discount_price?: number;
-  duration: string;
-  level: string;
-  category_id: string;
-  subcategory_id?: string;
+export interface Course extends CourseType {
   category_name?: string;
   category_slug?: string;
   subcategory_name?: string;
   subcategory_slug?: string;
-  featured: boolean;
-  image_url?: string;
-  status: string;
-  sessions?: any[]; // Added sessions array
+  sessions?: any[];
 }
 
-export interface Subcategory {
-  id: string;
-  name: string;
-  slug: string;
-  image?: string; // Added image property
+export interface Subcategory extends SubcategoryType {
+  image?: string;
 }
 
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
+export interface Category extends CategoryType {
   subcategories: Subcategory[];
-  image?: string; // Added image property
 }
 
 interface CourseContextProps {
@@ -62,21 +41,17 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const { toast } = useToast();
 
-  // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         
-        // Fetch categories
         const categoriesResult = await db.categories.getAll();
         setCategoryData(categoriesResult);
         
-        // Fetch featured courses
         const featuredResult = await db.courses.getFeatured();
         setFeaturedCourses(featuredResult);
         
-        // Fetch all courses
         const coursesResult = await db.courses.getAll();
         setCourseData(coursesResult);
         
@@ -105,7 +80,6 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
         description: "Failed to load course details. Please try again later.",
         variant: "destructive",
       });
-      // Return a default course object to prevent null issues
       return {
         id: '',
         title: 'Error loading course',
@@ -128,7 +102,6 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
       return await db.categories.getBySlug(slug);
     } catch (error) {
       console.error('Error fetching category by slug:', error);
-      // Return a default category to prevent null issues
       return {
         id: '',
         name: 'Error loading category',

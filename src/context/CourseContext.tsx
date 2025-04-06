@@ -68,7 +68,7 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const categoriesData = await apiService.getCategories();
       
       // Ensure we always return an array
-      const categoriesArray = (categoriesData as any[]) || [];
+      const categoriesArray = Array.isArray(categoriesData) ? categoriesData : [];
       
       // Update state with fetched categories
       setCategories(categoriesArray as Category[]);
@@ -87,7 +87,7 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const coursesData = await apiService.getFeaturedCourses();
       
       // Ensure we always return an array
-      const coursesArray = (coursesData as any[]) || [];
+      const coursesArray = Array.isArray(coursesData) ? coursesData : [];
       
       // Update state with fetched courses
       setFeaturedCourses(coursesArray as Course[]);
@@ -110,12 +110,15 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
       
       // Also fetch sessions for this course if needed
-      const sessionsData = await apiService.getUpcomingSessions((courseData as any).id);
+      const courseDataObj = courseData as any;
+      const sessionsData = await apiService.getUpcomingSessions(courseDataObj.id);
       
       // Combine course with sessions and category info
+      const sessionArray = Array.isArray(sessionsData) ? sessionsData : [];
+      
       const course = {
-        ...(courseData as any),
-        sessions: (sessionsData as any[]) || []
+        ...courseDataObj,
+        sessions: sessionArray
       } as Course;
 
       return course;
@@ -135,7 +138,7 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         throw new Error(`Category with slug "${slug}" not found`);
       }
       
-      // Cast to Category type
+      // Cast to Category type with proper type assertion
       return categoryData as Category;
     } catch (err) {
       console.error(`Error fetching category by slug "${slug}":`, err);
@@ -156,11 +159,13 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         throw new Error(`Category with slug "${categorySlug}" not found`);
       }
       
+      const categoryDataObj = categoryData as any;
+      
       // Now we would need to get the subcategory
       // This is just a placeholder until you implement the API
       const mockSubcategory: Subcategory = {
         id: "subcategory-1",
-        category_id: (categoryData as any).id,
+        category_id: categoryDataObj.id,
         name: "Subcategory Name",
         slug: subcategorySlug,
       };
@@ -179,7 +184,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const coursesData = await apiService.getCoursesByCategory(categoryId);
       
       // Ensure we always return an array
-      return (coursesData as any[]) || [];
+      const coursesArray = Array.isArray(coursesData) ? coursesData : [];
+      return coursesArray as Course[];
     } catch (err) {
       console.error(`Error fetching courses by category ID "${categoryId}":`, err);
       throw err;
@@ -193,7 +199,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const coursesData = await apiService.getCoursesBySubcategory(subcategoryId);
       
       // Ensure we always return an array
-      return (coursesData as any[]) || [];
+      const coursesArray = Array.isArray(coursesData) ? coursesData : [];
+      return coursesArray as Course[];
     } catch (err) {
       console.error(`Error fetching courses by subcategory ID "${subcategoryId}":`, err);
       throw err;
@@ -211,7 +218,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const coursesData = await apiService.searchCourses(query);
       
       // Ensure we always return an array
-      return (coursesData as any[]) || [];
+      const coursesArray = Array.isArray(coursesData) ? coursesData : [];
+      return coursesArray as Course[];
     } catch (err) {
       console.error(`Error searching courses with query "${query}":`, err);
       throw err;

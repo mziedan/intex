@@ -8,7 +8,7 @@ export const courseService = {
   getAll: async (): Promise<Course[]> => {
     try {
       const data = await apiService.getCourses();
-      return data as Course[];
+      return Array.isArray(data) ? data as Course[] : [];
     } catch (error) {
       console.error('Error fetching courses:', error);
       return [];
@@ -19,7 +19,7 @@ export const courseService = {
   getFeatured: async (): Promise<Course[]> => {
     try {
       const data = await apiService.getFeaturedCourses();
-      return data as Course[];
+      return Array.isArray(data) ? data as Course[] : [];
     } catch (error) {
       console.error('Error fetching featured courses:', error);
       return [];
@@ -30,7 +30,7 @@ export const courseService = {
   getBySlug: async (slug: string): Promise<Course | null> => {
     try {
       const data = await apiService.getCourseBySlug(slug);
-      return data as Course;
+      return data ? data as Course : null;
     } catch (error) {
       console.error(`Error fetching course with slug ${slug}:`, error);
       return null;
@@ -41,7 +41,7 @@ export const courseService = {
   getByCategory: async (categoryId: string): Promise<Course[]> => {
     try {
       const data = await apiService.getCoursesByCategory(categoryId);
-      return data as Course[];
+      return Array.isArray(data) ? data as Course[] : [];
     } catch (error) {
       console.error(`Error fetching courses for category ${categoryId}:`, error);
       return [];
@@ -52,7 +52,7 @@ export const courseService = {
   getBySubcategory: async (subcategoryId: string): Promise<Course[]> => {
     try {
       const data = await apiService.getCoursesBySubcategory(subcategoryId);
-      return data as Course[];
+      return Array.isArray(data) ? data as Course[] : [];
     } catch (error) {
       console.error(`Error fetching courses for subcategory ${subcategoryId}:`, error);
       return [];
@@ -63,7 +63,7 @@ export const courseService = {
   search: async (query: string): Promise<Course[]> => {
     try {
       const data = await apiService.searchCourses(query);
-      return data as Course[];
+      return Array.isArray(data) ? data as Course[] : [];
     } catch (error) {
       console.error(`Error searching courses with query "${query}":`, error);
       return [];
@@ -77,7 +77,7 @@ export const categoryService = {
   getAll: async (): Promise<Category[]> => {
     try {
       const data = await apiService.getCategories();
-      return data as Category[];
+      return Array.isArray(data) ? data as Category[] : [];
     } catch (error) {
       console.error('Error fetching categories:', error);
       return [];
@@ -88,7 +88,7 @@ export const categoryService = {
   getBySlug: async (slug: string): Promise<Category | null> => {
     try {
       const data = await apiService.getCategoryBySlug(slug);
-      return data as Category;
+      return data ? data as Category : null;
     } catch (error) {
       console.error(`Error fetching category with slug ${slug}:`, error);
       return null;
@@ -102,7 +102,7 @@ export const sessionService = {
   getUpcomingForCourse: async (courseId: string): Promise<Session[]> => {
     try {
       const data = await apiService.getUpcomingSessions(courseId);
-      return data as Session[];
+      return Array.isArray(data) ? data as Session[] : [];
     } catch (error) {
       console.error(`Error fetching upcoming sessions for course ${courseId}:`, error);
       return [];

@@ -27,7 +27,7 @@ const Index = () => {
     queryFn: async () => {
       try {
         const data = await apiService.getActiveSliders();
-        return (data as any[]) || []; // Ensure we always return an array
+        return Array.isArray(data) ? data : []; // Ensure we always return an array
       } catch (error) {
         console.error("Error fetching sliders:", error);
         return [];

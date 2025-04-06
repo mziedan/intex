@@ -13,7 +13,7 @@ export const categoriesService = {
   getAll: async (): Promise<Category[]> => {
     try {
       const categories = await apiService.getCategories();
-      return categories as Category[];
+      return Array.isArray(categories) ? categories as Category[] : [];
     } catch (error) {
       console.error('Error fetching categories:', error);
       throw error;
@@ -38,7 +38,7 @@ export const coursesService = {
   getAll: async (): Promise<Course[]> => {
     try {
       const courses = await apiService.getCourses();
-      return courses as Course[];
+      return Array.isArray(courses) ? courses as Course[] : [];
     } catch (error) {
       console.error('Error fetching courses:', error);
       throw error;
@@ -48,7 +48,7 @@ export const coursesService = {
   getFeatured: async (): Promise<Course[]> => {
     try {
       const courses = await apiService.getFeaturedCourses();
-      return courses as Course[];
+      return Array.isArray(courses) ? courses as Course[] : [];
     } catch (error) {
       console.error('Error fetching featured courses:', error);
       throw error;
@@ -63,11 +63,13 @@ export const coursesService = {
       }
       
       // Fetch sessions for this course
-      const sessions = await apiService.getUpcomingSessions(course.id);
+      const courseObj = course as any;
+      const sessions = await apiService.getUpcomingSessions(courseObj.id);
+      const sessionArray = Array.isArray(sessions) ? sessions : [];
       
       return {
         ...course as Course,
-        sessions: sessions as Session[]
+        sessions: sessionArray as Session[]
       };
     } catch (error) {
       console.error('Error fetching course by slug:', error);
@@ -78,7 +80,7 @@ export const coursesService = {
   getByCategory: async (categoryId: string): Promise<Course[]> => {
     try {
       const courses = await apiService.getCoursesByCategory(categoryId);
-      return courses as Course[];
+      return Array.isArray(courses) ? courses as Course[] : [];
     } catch (error) {
       console.error('Error fetching courses by category:', error);
       throw error;
@@ -88,7 +90,7 @@ export const coursesService = {
   getBySubcategory: async (subcategoryId: string): Promise<Course[]> => {
     try {
       const courses = await apiService.getCoursesBySubcategory(subcategoryId);
-      return courses as Course[];
+      return Array.isArray(courses) ? courses as Course[] : [];
     } catch (error) {
       console.error('Error fetching courses by subcategory:', error);
       throw error;
@@ -98,7 +100,7 @@ export const coursesService = {
   search: async (query: string): Promise<Course[]> => {
     try {
       const courses = await apiService.searchCourses(query);
-      return courses as Course[];
+      return Array.isArray(courses) ? courses as Course[] : [];
     } catch (error) {
       console.error('Error searching courses:', error);
       throw error;
@@ -110,7 +112,7 @@ export const sessionsService = {
   getUpcomingByCourse: async (courseId: string): Promise<Session[]> => {
     try {
       const sessions = await apiService.getUpcomingSessions(courseId);
-      return sessions as Session[];
+      return Array.isArray(sessions) ? sessions as Session[] : [];
     } catch (error) {
       console.error('Error fetching upcoming sessions:', error);
       throw error;
@@ -122,7 +124,7 @@ export const slidersService = {
   getActive: async (): Promise<Slider[]> => {
     try {
       const sliders = await apiService.getActiveSliders();
-      return sliders as Slider[];
+      return Array.isArray(sliders) ? sliders as Slider[] : [];
     } catch (error) {
       console.error('Error fetching active sliders:', error);
       throw error;
@@ -134,7 +136,7 @@ export const partnersService = {
   getAll: async (): Promise<Partner[]> => {
     try {
       const partners = await apiService.getPartners();
-      return partners as Partner[];
+      return Array.isArray(partners) ? partners as Partner[] : [];
     } catch (error) {
       console.error('Error fetching partners:', error);
       throw error;

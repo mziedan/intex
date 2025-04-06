@@ -12,7 +12,7 @@ require_once '../config.php';
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, X-Development');
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -45,6 +45,9 @@ if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
             'category_name' => 'Business',
             'category_name_ar' => 'الأعمال',
             'category_slug' => 'business',
+            'subcategory_name' => 'Leadership',
+            'subcategory_name_ar' => 'القيادة',
+            'subcategory_slug' => 'leadership',
             'sessions' => [
                 [
                     'id' => '101',
@@ -52,7 +55,8 @@ if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
                     'end_date' => '2023-08-12',
                     'location' => 'Online',
                     'location_ar' => 'عبر الإنترنت',
-                    'capacity' => 30
+                    'capacity' => 30,
+                    'registration_count' => 12
                 ]
             ]
         ],
@@ -74,6 +78,9 @@ if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
             'category_name' => 'Technology',
             'category_name_ar' => 'التكنولوجيا',
             'category_slug' => 'technology',
+            'subcategory_name' => 'Data Science',
+            'subcategory_name_ar' => 'علوم البيانات',
+            'subcategory_slug' => 'data-science',
             'sessions' => [
                 [
                     'id' => '201',
@@ -81,7 +88,8 @@ if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
                     'end_date' => '2023-09-15',
                     'location' => 'Online',
                     'location_ar' => 'عبر الإنترنت',
-                    'capacity' => 25
+                    'capacity' => 25,
+                    'registration_count' => 18
                 ]
             ]
         ],
@@ -103,6 +111,9 @@ if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
             'category_name' => 'Marketing',
             'category_name_ar' => 'التسويق',
             'category_slug' => 'marketing',
+            'subcategory_name' => 'Digital Marketing',
+            'subcategory_name_ar' => 'التسويق الرقمي',
+            'subcategory_slug' => 'digital-marketing',
             'sessions' => [
                 [
                     'id' => '301',
@@ -110,7 +121,8 @@ if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
                     'end_date' => '2023-08-10',
                     'location' => 'Online',
                     'location_ar' => 'عبر الإنترنت',
-                    'capacity' => 35
+                    'capacity' => 35,
+                    'registration_count' => 20
                 ]
             ]
         ]
@@ -142,11 +154,16 @@ try {
             c.subcategory_id,
             cat.name as category_name,
             cat.name_ar as category_name_ar,
-            cat.slug as category_slug
+            cat.slug as category_slug,
+            subcat.name as subcategory_name,
+            subcat.name_ar as subcategory_name_ar,
+            subcat.slug as subcategory_slug
         FROM 
             courses c
         JOIN 
             categories cat ON c.category_id = cat.id
+        LEFT JOIN
+            subcategories subcat ON c.subcategory_id = subcat.id
         WHERE 
             c.featured = 1 AND c.status = 'active'
         ORDER BY 
@@ -171,7 +188,8 @@ try {
                 s.end_date, 
                 s.location,
                 s.location_ar,
-                s.capacity
+                s.capacity,
+                (SELECT COUNT(*) FROM registrations r WHERE r.session_id = s.id) as registration_count
             FROM 
                 sessions s
             WHERE 

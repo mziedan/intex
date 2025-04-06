@@ -12,7 +12,7 @@ require_once '../config.php';
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, X-Development');
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -129,6 +129,76 @@ if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
                     'capacity' => 35,
                     'price' => null,
                     'registration_count' => 20
+                ]
+            ]
+        ],
+        [
+            'id' => '4',
+            'title' => 'Project Management Professional',
+            'title_ar' => 'محترف إدارة المشاريع',
+            'slug' => 'project-management-professional',
+            'short_description' => 'Prepare for the PMP certification with our comprehensive course',
+            'short_description_ar' => 'استعد لشهادة PMP مع دورتنا الشاملة',
+            'price' => 499.99,
+            'discount_price' => 449.99,
+            'duration' => '8 weeks',
+            'level' => 'Advanced',
+            'featured' => false,
+            'status' => 'active',
+            'image_url' => '/images/courses/project-management.jpg',
+            'category_id' => '1',
+            'subcategory_id' => '101',
+            'category_name' => 'Business',
+            'category_name_ar' => 'الأعمال',
+            'category_slug' => 'business',
+            'subcategory_name' => 'Management',
+            'subcategory_name_ar' => 'الإدارة',
+            'subcategory_slug' => 'management',
+            'sessions' => [
+                [
+                    'id' => '401',
+                    'start_date' => '2023-09-01',
+                    'end_date' => '2023-10-31',
+                    'location' => 'Online',
+                    'location_ar' => 'عبر الإنترنت',
+                    'capacity' => 20,
+                    'price' => null,
+                    'registration_count' => 5
+                ]
+            ]
+        ],
+        [
+            'id' => '5',
+            'title' => 'Social Media Marketing',
+            'title_ar' => 'التسويق عبر وسائل التواصل الاجتماعي',
+            'slug' => 'social-media-marketing',
+            'short_description' => 'Learn how to create engaging social media campaigns',
+            'short_description_ar' => 'تعلم كيفية إنشاء حملات جذابة على وسائل التواصل الاجتماعي',
+            'price' => 199.99,
+            'discount_price' => 169.99,
+            'duration' => '3 weeks',
+            'level' => 'Beginner',
+            'featured' => false,
+            'status' => 'active',
+            'image_url' => '/images/courses/social-media.jpg',
+            'category_id' => '3',
+            'subcategory_id' => '302',
+            'category_name' => 'Marketing',
+            'category_name_ar' => 'التسويق',
+            'category_slug' => 'marketing',
+            'subcategory_name' => 'Social Media',
+            'subcategory_name_ar' => 'وسائل التواصل الاجتماعي',
+            'subcategory_slug' => 'social-media',
+            'sessions' => [
+                [
+                    'id' => '501',
+                    'start_date' => '2023-08-15',
+                    'end_date' => '2023-09-05',
+                    'location' => 'Online',
+                    'location_ar' => 'عبر الإنترنت',
+                    'capacity' => 40,
+                    'price' => null,
+                    'registration_count' => 25
                 ]
             ]
         ]

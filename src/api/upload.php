@@ -7,11 +7,13 @@
  * It saves images to the specified folder and returns the URL.
  */
 
+require_once 'config.php';
+
 // Set headers
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, X-Development');
 
 // Define allowed folders
 $allowedFolders = ['sliders', 'courses', 'categories', 'subcategories', 'partners', 'instructors'];
@@ -42,8 +44,8 @@ if (!isset($_POST['folder']) || !in_array($_POST['folder'], $allowedFolders)) {
     exit;
 }
 
-// For development: Use a mock response
-if (isset($_SERVER['HTTP_X_DEVELOPMENT']) && $_SERVER['HTTP_X_DEVELOPMENT'] === 'true') {
+// For development: Check the X-Development header
+if (isset($_SERVER['HTTP_X_DEVELOPMENT']) && $_SERVER['HTTP_X_DEVELOPMENT'] === 'true' || DEVELOPMENT_MODE) {
     // Return a mock URL for development
     $mockUrl = '/mock-uploads/' . $_POST['folder'] . '/' . uniqid() . '.jpg';
     echo json_encode([
@@ -95,11 +97,11 @@ if (move_uploaded_file($fileTmpName, $destination)) {
     // Return the URL of the uploaded file
     $baseUrl = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
     $baseUrl .= $_SERVER['HTTP_HOST'];
-    $baseUrl .= '/uploads/' . $folder . '/' . $newFileName;
+    $uploadUrl = '/uploads/' . $folder . '/' . $newFileName;
     
     echo json_encode([
         'success' => true,
-        'imageUrl' => $baseUrl
+        'imageUrl' => $uploadUrl
     ]);
 } else {
     http_response_code(500);

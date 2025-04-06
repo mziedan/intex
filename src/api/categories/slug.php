@@ -12,7 +12,7 @@ require_once '../config.php';
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, X-Development');
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -42,18 +42,21 @@ if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
             'name' => 'Business',
             'name_ar' => 'الأعمال',
             'slug' => 'business',
+            'image_url' => '/images/categories/business.jpg',
             'subcategories' => [
                 [
                     'id' => '101',
                     'name' => 'Management',
                     'name_ar' => 'الإدارة',
-                    'slug' => 'management'
+                    'slug' => 'management',
+                    'image_url' => '/images/subcategories/management.jpg'
                 ],
                 [
                     'id' => '102',
                     'name' => 'Leadership',
                     'name_ar' => 'القيادة',
-                    'slug' => 'leadership'
+                    'slug' => 'leadership',
+                    'image_url' => '/images/subcategories/leadership.jpg'
                 ]
             ]
         ],
@@ -62,18 +65,21 @@ if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
             'name' => 'Technology',
             'name_ar' => 'التكنولوجيا',
             'slug' => 'technology',
+            'image_url' => '/images/categories/technology.jpg',
             'subcategories' => [
                 [
                     'id' => '201',
                     'name' => 'Programming',
                     'name_ar' => 'البرمجة',
-                    'slug' => 'programming'
+                    'slug' => 'programming',
+                    'image_url' => '/images/subcategories/programming.jpg'
                 ],
                 [
                     'id' => '202',
                     'name' => 'Data Science',
                     'name_ar' => 'علوم البيانات',
-                    'slug' => 'data-science'
+                    'slug' => 'data-science',
+                    'image_url' => '/images/subcategories/data-science.jpg'
                 ]
             ]
         ],
@@ -82,18 +88,44 @@ if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
             'name' => 'Marketing',
             'name_ar' => 'التسويق',
             'slug' => 'marketing',
+            'image_url' => '/images/categories/marketing.jpg',
             'subcategories' => [
                 [
                     'id' => '301',
                     'name' => 'Digital Marketing',
                     'name_ar' => 'التسويق الرقمي',
-                    'slug' => 'digital-marketing'
+                    'slug' => 'digital-marketing',
+                    'image_url' => '/images/subcategories/digital-marketing.jpg'
                 ],
                 [
                     'id' => '302',
                     'name' => 'Social Media',
                     'name_ar' => 'وسائل التواصل الاجتماعي',
-                    'slug' => 'social-media'
+                    'slug' => 'social-media',
+                    'image_url' => '/images/subcategories/social-media.jpg'
+                ]
+            ]
+        ],
+        'hr-development' => [
+            'id' => '4',
+            'name' => 'HR & Development',
+            'name_ar' => 'الموارد البشرية والتطوير',
+            'slug' => 'hr-development',
+            'image_url' => '/images/categories/hr.jpg',
+            'subcategories' => [
+                [
+                    'id' => '401',
+                    'name' => 'Talent Management',
+                    'name_ar' => 'إدارة المواهب',
+                    'slug' => 'talent-management',
+                    'image_url' => '/images/subcategories/talent-management.jpg'
+                ],
+                [
+                    'id' => '402',
+                    'name' => 'Employee Training',
+                    'name_ar' => 'تدريب الموظفين',
+                    'slug' => 'employee-training',
+                    'image_url' => '/images/subcategories/employee-training.jpg'
                 ]
             ]
         ]
@@ -117,7 +149,8 @@ try {
             c.id, 
             c.name, 
             c.name_ar, 
-            c.slug
+            c.slug,
+            c.image_url
         FROM 
             categories c
         WHERE 
@@ -141,7 +174,8 @@ try {
             id, 
             name, 
             name_ar, 
-            slug
+            slug,
+            image_url
         FROM 
             subcategories
         WHERE 

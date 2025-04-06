@@ -10,25 +10,25 @@ const isDevelopment = () => {
 
 export async function uploadImage(file: File, folder: string): Promise<string> {
   try {
-    // For development mode, return a mock URL
-    if (isDevelopment()) {
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return `/mock-uploads/${folder}/${Date.now()}.jpg`;
-    }
-
     const formData = new FormData();
     formData.append('image', file);
     formData.append('folder', folder);
 
+    // Add development header when in development mode
+    const headers: Record<string, string> = {};
+    if (isDevelopment()) {
+      headers['X-Development'] = 'true';
+    }
+
     const response = await fetch(`${API_BASE_URL}/upload`, {
       method: 'POST',
       body: formData,
+      headers: headers
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Failed to upload image');
+      throw new Error(error.error || 'Failed to upload image');
     }
 
     const data = await response.json();

@@ -12,7 +12,7 @@ require_once '../config.php';
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, X-Development');
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -49,6 +49,17 @@ if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
             'button_text' => 'Meet Our Team',
             'button_text_ar' => 'قابل فريقنا',
             'button_link' => '/about'
+        ],
+        [
+            'id' => '3',
+            'title' => 'Professional Development',
+            'title_ar' => 'التطوير المهني',
+            'subtitle' => 'Upgrade your skills with our industry-recognized certifications',
+            'subtitle_ar' => 'قم بترقية مهاراتك من خلال شهاداتنا المعترف بها في الصناعة',
+            'image_url' => '/images/slider/slide3.jpg',
+            'button_text' => 'Browse Certifications',
+            'button_text_ar' => 'تصفح الشهادات',
+            'button_link' => '/certifications'
         ]
     ];
     sendResponse($mockSliders);

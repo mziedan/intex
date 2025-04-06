@@ -14,7 +14,9 @@ const CategoriesGrid: React.FC<CategoriesGridProps> = ({ categories }) => {
         <CategoryCard 
           key={category.id} 
           item={{
-            ...category,
+            id: category.id,
+            name: category.name,
+            slug: category.slug,
             image: category.image || `/categories/${category.slug}.jpg`
           }}
           type="category"

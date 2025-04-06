@@ -1,22 +1,22 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import db from '../services/db';
-import { useToast } from '@/hooks/use-toast';
-import { Course as CourseType, Category as CategoryType, Subcategory as SubcategoryType } from '@/lib/supabase';
 
-export interface Course extends CourseType {
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase, Course as SupabaseCourse, Category as SupabaseCategory, Subcategory as SupabaseSubcategory } from '@/lib/supabase';
+import { useToast } from '@/hooks/use-toast';
+
+export interface Subcategory extends SupabaseSubcategory {
+  image?: string;
+}
+
+export interface Category extends SupabaseCategory {
+  subcategories: Subcategory[];
+}
+
+export interface Course extends SupabaseCourse {
   category_name?: string;
   category_slug?: string;
   subcategory_name?: string;
   subcategory_slug?: string;
   sessions?: any[];
-}
-
-export interface Subcategory extends SubcategoryType {
-  image?: string;
-}
-
-export interface Category extends CategoryType {
-  subcategories: Subcategory[];
 }
 
 interface CourseContextProps {
@@ -46,14 +46,112 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
       try {
         setLoading(true);
         
-        const categoriesResult = await db.categories.getAll();
-        setCategoryData(categoriesResult);
+        // Fetch categories from Supabase
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from('categories')
+          .select('*')
+          .order('name');
         
-        const featuredResult = await db.courses.getFeatured();
-        setFeaturedCourses(featuredResult);
+        if (categoriesError) throw categoriesError;
         
-        const coursesResult = await db.courses.getAll();
-        setCourseData(coursesResult);
+        // Fetch subcategories for each category
+        const categoriesWithSubcategories = await Promise.all(
+          categoriesData.map(async (category) => {
+            const { data: subcategories, error: subError } = await supabase
+              .from('subcategories')
+              .select('*')
+              .eq('category_id', category.id)
+              .order('name');
+            
+            if (subError) {
+              console.error('Error fetching subcategories:', subError);
+              return { ...category, subcategories: [] };
+            }
+            
+            return { ...category, subcategories: subcategories || [] } as Category;
+          })
+        );
+        
+        setCategoryData(categoriesWithSubcategories);
+        
+        // Fetch featured courses
+        const { data: featuredData, error: featuredError } = await supabase
+          .from('courses')
+          .select(`
+            *,
+            categories:category_id (name, name_ar, slug),
+            subcategories:subcategory_id (name, name_ar, slug)
+          `)
+          .eq('status', 'active')
+          .eq('featured', true)
+          .order('title')
+          .limit(6);
+        
+        if (featuredError) throw featuredError;
+        
+        // Format courses to include sessions
+        const formattedFeatured = await Promise.all(
+          featuredData.map(async (course) => {
+            const { data: sessions, error: sessionsError } = await supabase
+              .from('sessions')
+              .select('*')
+              .eq('course_id', course.id)
+              .eq('status', 'upcoming')
+              .gte('start_date', new Date().toISOString().split('T')[0])
+              .order('start_date')
+              .limit(1);
+            
+            return {
+              ...course,
+              category_name: course.categories?.name || '',
+              category_slug: course.categories?.slug || '',
+              subcategory_name: course.subcategories?.name || '',
+              subcategory_slug: course.subcategories?.slug || '',
+              sessions: sessions || []
+            } as Course;
+          })
+        );
+        
+        setFeaturedCourses(formattedFeatured);
+        
+        // Fetch all courses
+        const { data: coursesData, error: coursesError } = await supabase
+          .from('courses')
+          .select(`
+            *,
+            categories:category_id (name, name_ar, slug),
+            subcategories:subcategory_id (name, name_ar, slug)
+          `)
+          .eq('status', 'active')
+          .order('featured', { ascending: false })
+          .order('title');
+        
+        if (coursesError) throw coursesError;
+        
+        // Format courses to include sessions
+        const formattedCourses = await Promise.all(
+          coursesData.map(async (course) => {
+            const { data: sessions, error: sessionsError } = await supabase
+              .from('sessions')
+              .select('*')
+              .eq('course_id', course.id)
+              .eq('status', 'upcoming')
+              .gte('start_date', new Date().toISOString().split('T')[0])
+              .order('start_date')
+              .limit(3);
+            
+            return {
+              ...course,
+              category_name: course.categories?.name || '',
+              category_slug: course.categories?.slug || '',
+              subcategory_name: course.subcategories?.name || '',
+              subcategory_slug: course.subcategories?.slug || '',
+              sessions: sessions || []
+            } as Course;
+          })
+        );
+        
+        setCourseData(formattedCourses);
         
         setLoading(false);
       } catch (error) {

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import CategoryCard from '@/components/ui/CategoryCard';
-import { Category } from '@/utils/mockData';
+import { Category } from '@/context/CourseContext'; 
 
 interface CategoriesSectionProps {
   categories: Category[];
@@ -35,7 +35,15 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({ categories, isVis
                   : 'opacity-0 translate-y-10'
               }`}
             >
-              <CategoryCard item={category} type="category" />
+              <CategoryCard 
+                item={{
+                  id: category.id,
+                  name: category.name,
+                  slug: category.slug,
+                  image: category.image
+                }} 
+                type="category" 
+              />
             </div>
           ))}
         </div>

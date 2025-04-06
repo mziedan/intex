@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -12,7 +11,7 @@ import CTASection from '@/components/sections/CTASection';
 import useVisibilityObserver from '@/hooks/useVisibilityObserver';
 import { statistics, partners, companyInfo } from '@/utils/mockData';
 import { useCourses, Category, Course } from '@/context/CourseContext';
-import { slidersService } from '@/services/db';
+import { supabase } from '@/lib/supabase';
 import { useQuery } from '@tanstack/react-query';
 
 const Index = () => {
@@ -23,7 +22,16 @@ const Index = () => {
   // Fetch slider data
   const { data: heroSlides = [], isLoading: slidersLoading } = useQuery({
     queryKey: ['sliders'],
-    queryFn: slidersService.getActive,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('sliders')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order');
+      
+      if (error) throw error;
+      return data || [];
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
   

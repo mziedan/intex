@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -10,8 +11,8 @@ import StatisticsSection from '@/components/sections/StatisticsSection';
 import CTASection from '@/components/sections/CTASection';
 import useVisibilityObserver from '@/hooks/useVisibilityObserver';
 import { statistics, partners, companyInfo } from '@/utils/mockData';
-import { useCourses, Category, Course } from '@/context/CourseContext';
-import { supabase } from '@/lib/supabase';
+import { useCourses } from '@/context/CourseContext';
+import apiService from '@/services/apiService';
 import { useQuery } from '@tanstack/react-query';
 
 const Index = () => {
@@ -19,18 +20,17 @@ const Index = () => {
   const [mockCategories, setMockCategories] = useState<any[]>([]);
   const [mockFeatured, setMockFeatured] = useState<any[]>([]);
   
-  // Fetch slider data
+  // Fetch slider data with React Query (using apiService instead of direct Supabase calls)
   const { data: heroSlides = [], isLoading: slidersLoading } = useQuery({
     queryKey: ['sliders'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('sliders')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order');
-      
-      if (error) throw error;
-      return data || [];
+      try {
+        const data = await apiService.getActiveSliders();
+        return data || [];
+      } catch (error) {
+        console.error("Error fetching sliders:", error);
+        return [];
+      }
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });

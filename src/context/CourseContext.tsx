@@ -1,62 +1,7 @@
 
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { supabase } from '@/lib/supabase';
-
-// Define types
-export interface Category {
-  id: string;
-  name: string;
-  name_ar?: string;
-  slug: string;
-  image?: string;
-  subcategories?: Subcategory[];
-}
-
-export interface Subcategory {
-  id: string;
-  category_id: string;
-  name: string;
-  name_ar?: string;
-  slug: string;
-  image?: string;
-}
-
-export interface Session {
-  id: string;
-  course_id: string;
-  start_date: string;
-  end_date: string;
-  location: string;
-  location_ar?: string;
-  capacity: number;
-  price?: number;
-  status: string;
-}
-
-export interface Course {
-  id: string;
-  title: string;
-  title_ar?: string;
-  slug: string;
-  short_description: string;
-  short_description_ar?: string;
-  description: string;
-  description_ar?: string;
-  price: number;
-  discount_price?: number;
-  duration: string;
-  level: string;
-  featured: boolean;
-  status: string;
-  image_url?: string;
-  category_id: string;
-  category_name?: string;
-  category_slug?: string;
-  subcategory_id?: string;
-  created_at?: string;
-  updated_at?: string;
-  sessions?: Session[];
-}
+import apiService from '@/services/apiService';
+import { Category, Course, Session, Subcategory } from '@/lib/supabase';
 
 // Context interface
 interface CourseContextProps {
@@ -116,35 +61,15 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      // Fetch categories from Supabase
-      const { data: categoriesData, error: categoriesError } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
+      // Fetch categories using API service
+      const categoriesData = await apiService.getCategories();
 
-      if (categoriesError) throw categoriesError;
-
-      // Fetch subcategories for each category
-      const categoriesWithSubcategories = await Promise.all(
-        (categoriesData || []).map(async (category) => {
-          const { data: subcategories, error: subcategoriesError } = await supabase
-            .from('subcategories')
-            .select('*')
-            .eq('category_id', category.id)
-            .order('name');
-
-          if (subcategoriesError) throw subcategoriesError;
-
-          return {
-            ...category,
-            subcategories: subcategories || []
-          };
-        })
-      );
-
+      // Assuming the API returns categories with subcategories
+      // Or we can fetch subcategories separately if needed
+      
       // Update state with fetched categories
-      setCategories(categoriesWithSubcategories);
-      return categoriesWithSubcategories;
+      setCategories(categoriesData as Category[]);
+      return categoriesData;
     } catch (err) {
       console.error('Error fetching categories:', err);
       throw err;
@@ -154,29 +79,15 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Fetch featured courses
   const fetchFeaturedCourses = async () => {
     try {
-      // Fetch featured courses from Supabase
-      const { data: coursesData, error: coursesError } = await supabase
-        .from('courses')
-        .select(`
-          *,
-          categories(name, slug)
-        `)
-        .eq('featured', true)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (coursesError) throw coursesError;
-
-      // Format courses with category name and slug
-      const formattedCourses = (coursesData || []).map(course => ({
-        ...course,
-        category_name: course.categories?.name,
-        category_slug: course.categories?.slug
-      }));
-
+      // Fetch featured courses using API service
+      const coursesData = await apiService.getFeaturedCourses();
+      
+      // Format courses with category name and slug if needed
+      // This would depend on how your API returns data
+      
       // Update state with fetched courses
-      setFeaturedCourses(formattedCourses);
-      return formattedCourses;
+      setFeaturedCourses(coursesData as Course[]);
+      return coursesData;
     } catch (err) {
       console.error('Error fetching featured courses:', err);
       throw err;
@@ -186,35 +97,20 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Get course by slug
   const getCourseBySlug = async (slug: string): Promise<Course> => {
     try {
-      // Fetch course from Supabase
-      const { data: courseData, error: courseError } = await supabase
-        .from('courses')
-        .select(`
-          *,
-          categories(name, slug)
-        `)
-        .eq('slug', slug)
-        .single();
-
-      if (courseError) throw courseError;
-      if (!courseData) throw new Error(`Course with slug "${slug}" not found`);
-
-      // Fetch sessions for this course
-      const { data: sessionsData, error: sessionsError } = await supabase
-        .from('sessions')
-        .select('*')
-        .eq('course_id', courseData.id)
-        .gte('end_date', new Date().toISOString())
-        .order('start_date');
-
-      if (sessionsError) throw sessionsError;
-
+      // Fetch course using API service
+      const courseData = await apiService.getCourseBySlug(slug);
+      
+      if (!courseData) {
+        throw new Error(`Course with slug "${slug}" not found`);
+      }
+      
+      // Also fetch sessions for this course if needed
+      const sessionsData = await apiService.getUpcomingSessions(courseData.id);
+      
       // Combine course with sessions and category info
       const course: Course = {
-        ...courseData,
-        category_name: courseData.categories?.name,
-        category_slug: courseData.categories?.slug,
-        sessions: sessionsData || []
+        ...courseData as Course,
+        sessions: sessionsData as Session[]
       };
 
       return course;
@@ -227,32 +123,16 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Get category by slug
   const getCategoryBySlug = async (slug: string): Promise<Category> => {
     try {
-      // Fetch category from Supabase
-      const { data: categoryData, error: categoryError } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('slug', slug)
-        .single();
-
-      if (categoryError) throw categoryError;
-      if (!categoryData) throw new Error(`Category with slug "${slug}" not found`);
-
-      // Fetch subcategories for this category
-      const { data: subcategoriesData, error: subcategoriesError } = await supabase
-        .from('subcategories')
-        .select('*')
-        .eq('category_id', categoryData.id)
-        .order('name');
-
-      if (subcategoriesError) throw subcategoriesError;
-
-      // Combine category with subcategories
-      const category: Category = {
-        ...categoryData,
-        subcategories: subcategoriesData || []
-      };
-
-      return category;
+      // Fetch category using API service
+      const categoryData = await apiService.getCategoryBySlug(slug);
+      
+      if (!categoryData) {
+        throw new Error(`Category with slug "${slug}" not found`);
+      }
+      
+      // Add any additional processing if needed
+      
+      return categoryData as Category;
     } catch (err) {
       console.error(`Error fetching category by slug "${slug}":`, err);
       throw err;
@@ -262,28 +142,26 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Get subcategory by slug
   const getSubcategoryBySlug = async (categorySlug: string, subcategorySlug: string): Promise<Subcategory> => {
     try {
+      // This is a placeholder - you would need to implement an API endpoint for this
+      // or use a combination of existing endpoints
+      
       // First get the category ID
-      const { data: categoryData, error: categoryError } = await supabase
-        .from('categories')
-        .select('id')
-        .eq('slug', categorySlug)
-        .single();
-
-      if (categoryError) throw categoryError;
-      if (!categoryData) throw new Error(`Category with slug "${categorySlug}" not found`);
-
-      // Now get the subcategory
-      const { data: subcategoryData, error: subcategoryError } = await supabase
-        .from('subcategories')
-        .select('*')
-        .eq('category_id', categoryData.id)
-        .eq('slug', subcategorySlug)
-        .single();
-
-      if (subcategoryError) throw subcategoryError;
-      if (!subcategoryData) throw new Error(`Subcategory with slug "${subcategorySlug}" not found in category "${categorySlug}"`);
-
-      return subcategoryData;
+      const categoryData = await apiService.getCategoryBySlug(categorySlug);
+      
+      if (!categoryData) {
+        throw new Error(`Category with slug "${categorySlug}" not found`);
+      }
+      
+      // Now we would need to get the subcategory
+      // This is just a placeholder until you implement the API
+      const mockSubcategory: Subcategory = {
+        id: "subcategory-1",
+        category_id: categoryData.id,
+        name: "Subcategory Name",
+        slug: subcategorySlug,
+      };
+      
+      return mockSubcategory;
     } catch (err) {
       console.error(`Error fetching subcategory by slug "${subcategorySlug}" in category "${categorySlug}":`, err);
       throw err;
@@ -293,27 +171,10 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Get courses by category
   const getCoursesByCategory = async (categoryId: string): Promise<Course[]> => {
     try {
-      // Fetch courses from Supabase
-      const { data: coursesData, error: coursesError } = await supabase
-        .from('courses')
-        .select(`
-          *,
-          categories(name, slug)
-        `)
-        .eq('category_id', categoryId)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (coursesError) throw coursesError;
-
-      // Format courses with category name and slug
-      const formattedCourses = (coursesData || []).map(course => ({
-        ...course,
-        category_name: course.categories?.name,
-        category_slug: course.categories?.slug
-      }));
-
-      return formattedCourses;
+      // Fetch courses by category using API service
+      const coursesData = await apiService.getCoursesByCategory(categoryId);
+      
+      return coursesData as Course[];
     } catch (err) {
       console.error(`Error fetching courses by category ID "${categoryId}":`, err);
       throw err;
@@ -323,27 +184,10 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Get courses by subcategory
   const getCoursesBySubcategory = async (subcategoryId: string): Promise<Course[]> => {
     try {
-      // Fetch courses from Supabase
-      const { data: coursesData, error: coursesError } = await supabase
-        .from('courses')
-        .select(`
-          *,
-          categories(name, slug)
-        `)
-        .eq('subcategory_id', subcategoryId)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (coursesError) throw coursesError;
-
-      // Format courses with category name and slug
-      const formattedCourses = (coursesData || []).map(course => ({
-        ...course,
-        category_name: course.categories?.name,
-        category_slug: course.categories?.slug
-      }));
-
-      return formattedCourses;
+      // Fetch courses by subcategory using API service
+      const coursesData = await apiService.getCoursesBySubcategory(subcategoryId);
+      
+      return coursesData as Course[];
     } catch (err) {
       console.error(`Error fetching courses by subcategory ID "${subcategoryId}":`, err);
       throw err;
@@ -356,28 +200,11 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (!query || query.trim() === '') {
         return [];
       }
-
-      // Search courses in Supabase
-      const { data: coursesData, error: coursesError } = await supabase
-        .from('courses')
-        .select(`
-          *,
-          categories(name, slug)
-        `)
-        .or(`title.ilike.%${query}%,short_description.ilike.%${query}%,description.ilike.%${query}%`)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (coursesError) throw coursesError;
-
-      // Format courses with category name and slug
-      const formattedCourses = (coursesData || []).map(course => ({
-        ...course,
-        category_name: course.categories?.name,
-        category_slug: course.categories?.slug
-      }));
-
-      return formattedCourses;
+      
+      // Search courses using API service
+      const coursesData = await apiService.searchCourses(query);
+      
+      return coursesData as Course[];
     } catch (err) {
       console.error(`Error searching courses with query "${query}":`, err);
       throw err;

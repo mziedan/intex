@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 // Default values for development to prevent errors
@@ -122,16 +121,71 @@ export type CustomPage = {
   updated_at?: string;
 };
 
-// Export a dummy supabase object so imports don't break
+// Export a mock supabase client that matches the expected function signatures
 export const supabase = {
-  from: () => ({
-    select: () => ({
-      eq: () => ({
-        order: () => ({
+  from: (table: string) => ({
+    select: (columns?: string) => ({
+      eq: (column: string, value: any) => ({
+        order: (column: string, { ascending = true } = {}) => ({
+          data: [],
+          error: null
+        }),
+        single: () => ({
+          data: null,
+          error: null
+        }),
+        maybeSingle: () => ({
+          data: null,
+          error: null
+        }),
+        gte: (column: string, value: any) => ({
+          order: (column: string, { ascending = true } = {}) => ({
+            data: [],
+            error: null
+          })
+        }),
+        or: (query: string) => ({
+          eq: (column: string, value: any) => ({
+            order: (column: string, { ascending = true } = {}) => ({
+              data: [],
+              error: null
+            })
+          })
+        }),
+        limit: (count: number) => ({
           data: [],
           error: null
         })
+      }),
+      order: (column: string, { ascending = true } = {}) => ({
+        limit: (count: number) => ({
+          data: [],
+          error: null
+        }),
+        data: [],
+        error: null
+      }),
+      single: () => ({
+        data: null,
+        error: null
+      }),
+      or: (query: string) => ({
+        eq: (column: string, value: any) => ({
+          order: (column: string, { ascending = true } = {}) => ({
+            data: [],
+            error: null
+          })
+        })
       })
     })
-  })
+  }),
+  storage: {
+    from: (bucket: string) => ({
+      upload: (path: string, file: any) => Promise.resolve({ data: { path }, error: null }),
+      getPublicUrl: (path: string) => ({ data: { publicUrl: `https://example.com/${path}` } })
+    })
+  }
 };
+
+// For migrations from Supabase to MySQL, we'll keep the original types
+// but use apiService for data fetching instead of direct Supabase calls.

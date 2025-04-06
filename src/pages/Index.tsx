@@ -14,6 +14,7 @@ import { statistics, partners, companyInfo } from '@/utils/mockData';
 import { useCourses } from '@/context/CourseContext';
 import apiService from '@/services/apiService';
 import { useQuery } from '@tanstack/react-query';
+import { Slider } from '@/lib/supabase';
 
 const Index = () => {
   const { categories, featuredCourses, loading } = useCourses();
@@ -26,7 +27,7 @@ const Index = () => {
     queryFn: async () => {
       try {
         const data = await apiService.getActiveSliders();
-        return data || [];
+        return data as Slider[];
       } catch (error) {
         console.error("Error fetching sliders:", error);
         return [];
@@ -64,14 +65,14 @@ const Index = () => {
   }, [categories, featuredCourses]);
 
   // Format slider data for the component
-  const formattedSlides = heroSlides.map((slide: any) => ({
+  const formattedSlides = Array.isArray(heroSlides) ? heroSlides.map((slide: Slider) => ({
     ...slide,
     title: slide.title || 'Welcome to Excellence Training',
     subtitle: slide.subtitle || 'Empowering professionals through world-class training programs',
     image: slide.image_url || '/images/slider/default.jpg',
     buttonText: slide.button_text || 'Explore Courses',
     buttonLink: slide.button_link || '/courses'
-  }));
+  })) : [];
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -3,6 +3,9 @@ import React, { createContext, useState, useContext, useEffect, ReactNode } from
 import apiService from '@/services/apiService';
 import { Category, Course, Session, Subcategory } from '@/lib/supabase';
 
+// Re-export types
+export type { Category, Course, Session, Subcategory };
+
 // Context interface
 interface CourseContextProps {
   categories: Category[];
@@ -69,7 +72,7 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       
       // Update state with fetched categories
       setCategories(categoriesData as Category[]);
-      return categoriesData;
+      return categoriesData as Category[];
     } catch (err) {
       console.error('Error fetching categories:', err);
       throw err;
@@ -87,7 +90,7 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       
       // Update state with fetched courses
       setFeaturedCourses(coursesData as Course[]);
-      return coursesData;
+      return coursesData as Course[];
     } catch (err) {
       console.error('Error fetching featured courses:', err);
       throw err;
@@ -105,11 +108,11 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
       
       // Also fetch sessions for this course if needed
-      const sessionsData = await apiService.getUpcomingSessions(courseData.id);
+      const sessionsData = await apiService.getUpcomingSessions((courseData as Course).id);
       
       // Combine course with sessions and category info
       const course: Course = {
-        ...courseData as Course,
+        ...(courseData as Course),
         sessions: sessionsData as Session[]
       };
 
@@ -156,7 +159,7 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       // This is just a placeholder until you implement the API
       const mockSubcategory: Subcategory = {
         id: "subcategory-1",
-        category_id: categoryData.id,
+        category_id: (categoryData as Category).id,
         name: "Subcategory Name",
         slug: subcategorySlug,
       };

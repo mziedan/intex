@@ -1,6 +1,9 @@
 
 import { v4 as uuidv4 } from 'uuid';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 import apiService from './apiService';
+import { supabase } from '@/lib/supabase';
 
 /**
  * Upload a file to the server
@@ -67,7 +70,48 @@ export const deleteFile = async (url: string): Promise<void> => {
   }
 };
 
+/**
+ * Custom hook for image upload with toast notification
+ */
+export const useImageUpload = () => {
+  const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
+
+  const uploadImageWithToast = async (file: File, directory: string = 'general') => {
+    if (!file) return null;
+    
+    setIsUploading(true);
+    try {
+      // Upload file using the service
+      const imageUrl = await uploadFile(file, directory);
+      
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully.",
+      });
+      
+      return imageUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return {
+    uploadImageWithToast,
+    isUploading
+  };
+};
+
 export default {
   uploadFile,
-  deleteFile
+  deleteFile,
+  useImageUpload
 };

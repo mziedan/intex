@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 
 // Default values for development to prevent errors
@@ -16,6 +17,7 @@ export type Category = {
   name_ar?: string;
   slug: string;
   image?: string;
+  subcategories?: Subcategory[];
 };
 
 export type Subcategory = {
@@ -44,9 +46,12 @@ export type Course = {
   status: string;
   image_url?: string;
   category_id: string;
+  category_name?: string;
+  category_slug?: string;
   subcategory_id?: string;
   created_at?: string;
   updated_at?: string;
+  sessions?: Session[];
 };
 
 export type Session = {
@@ -121,12 +126,12 @@ export type CustomPage = {
   updated_at?: string;
 };
 
-// Export a mock supabase client that matches the expected function signatures
+// Mock supabase client for development
 export const supabase = {
-  from: (table: string) => ({
-    select: (columns?: string) => ({
-      eq: (column: string, value: any) => ({
-        order: (column: string, { ascending = true } = {}) => ({
+  from: () => ({
+    select: () => ({
+      eq: () => ({
+        order: () => ({
           data: [],
           error: null
         }),
@@ -134,31 +139,27 @@ export const supabase = {
           data: null,
           error: null
         }),
-        maybeSingle: () => ({
-          data: null,
-          error: null
-        }),
-        gte: (column: string, value: any) => ({
-          order: (column: string, { ascending = true } = {}) => ({
+        gte: () => ({
+          order: () => ({
             data: [],
             error: null
           })
         }),
-        or: (query: string) => ({
-          eq: (column: string, value: any) => ({
-            order: (column: string, { ascending = true } = {}) => ({
+        or: () => ({
+          eq: () => ({
+            order: () => ({
               data: [],
               error: null
             })
           })
         }),
-        limit: (count: number) => ({
+        limit: () => ({
           data: [],
           error: null
         })
       }),
-      order: (column: string, { ascending = true } = {}) => ({
-        limit: (count: number) => ({
+      order: () => ({
+        limit: () => ({
           data: [],
           error: null
         }),
@@ -169,9 +170,9 @@ export const supabase = {
         data: null,
         error: null
       }),
-      or: (query: string) => ({
-        eq: (column: string, value: any) => ({
-          order: (column: string, { ascending = true } = {}) => ({
+      or: () => ({
+        eq: () => ({
+          order: () => ({
             data: [],
             error: null
           })
@@ -186,6 +187,3 @@ export const supabase = {
     })
   }
 };
-
-// For migrations from Supabase to MySQL, we'll keep the original types
-// but use apiService for data fetching instead of direct Supabase calls.

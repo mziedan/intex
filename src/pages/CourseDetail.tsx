@@ -5,8 +5,9 @@ import { Calendar, Clock, MapPin, Users, ChevronDown, ChevronUp } from 'lucide-r
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ContactForm from '@/components/ui/ContactForm';
-import { useCourses, Course, Category } from '@/context/CourseContext';
+import { useCourses } from '@/context/CourseContext';
 import { format } from 'date-fns';
+import { Course, Category } from '@/lib/supabase';
 
 const CourseDetail = () => {
   const { courseSlug } = useParams<{ courseSlug: string }>();
@@ -34,7 +35,9 @@ const CourseDetail = () => {
         setCourse(fetchedCourse);
         
         if (fetchedCourse && fetchedCourse.category_id) {
-          const fetchedCategory = await getCategoryBySlug(fetchedCourse.category_slug || '');
+          // Use the category_id to fetch category details
+          // If category_slug exists, we can use it, otherwise fetch by ID
+          const fetchedCategory = await getCategoryBySlug(fetchedCourse.category_slug || fetchedCourse.category_id);
           setCategory(fetchedCategory);
         }
       } catch (error) {

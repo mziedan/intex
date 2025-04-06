@@ -190,8 +190,8 @@ const CourseDetail = () => {
                     {sessions.length > 0 ? (
                       <div className="space-y-4">
                         {sessions.map((session: any) => {
-                          const startDate = new Date(session.startDate);
-                          const endDate = new Date(session.endDate);
+                          const startDate = new Date(session.start_date);
+                          const endDate = new Date(session.end_date);
                           const isSelected = session.id === selectedSession;
                           
                           return (
@@ -268,7 +268,7 @@ const CourseDetail = () => {
                             <div className="flex items-center">
                               <Calendar size={18} className="mr-2 text-brand-700" />
                               <span>
-                                {format(new Date(selectedSessionData.startDate), 'MMM d')} - {format(new Date(selectedSessionData.endDate), 'MMM d, yyyy')}
+                                {format(new Date(selectedSessionData.start_date), 'MMM d')} - {format(new Date(selectedSessionData.end_date), 'MMM d, yyyy')}
                               </span>
                             </div>
                             <div className="flex items-center">
@@ -281,7 +281,7 @@ const CourseDetail = () => {
                         <ContactForm 
                           type="registration"
                           courseTitle={course.title}
-                          sessionDate={`${format(new Date(selectedSessionData.startDate), 'MMM d')} - ${format(new Date(selectedSessionData.endDate), 'MMM d, yyyy')}`}
+                          sessionDate={`${format(new Date(selectedSessionData.start_date), 'MMM d')} - ${format(new Date(selectedSessionData.end_date), 'MMM d, yyyy')}`}
                           sessionLocation={selectedSessionData.location}
                         />
                       </>
@@ -334,7 +334,7 @@ const CourseDetail = () => {
                     <span className="w-1/3 text-gray-500">Next session:</span>
                     <span className="font-medium">
                       {sessions.length > 0 
-                        ? format(new Date(sessions[0].startDate), 'MMMM d, yyyy')
+                        ? format(new Date(sessions[0].start_date), 'MMMM d, yyyy')
                         : 'Not scheduled'
                       }
                     </span>

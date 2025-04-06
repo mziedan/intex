@@ -21,6 +21,18 @@ export interface Subcategory {
   image?: string;
 }
 
+export interface Session {
+  id: string;
+  course_id: string;
+  start_date: string;
+  end_date: string;
+  location: string;
+  location_ar?: string;
+  capacity: number;
+  price?: number;
+  status: string;
+}
+
 export interface Course {
   id: string;
   title: string;
@@ -44,18 +56,6 @@ export interface Course {
   created_at?: string;
   updated_at?: string;
   sessions?: Session[];
-}
-
-export interface Session {
-  id: string;
-  course_id: string;
-  start_date: string;
-  end_date: string;
-  location: string;
-  location_ar?: string;
-  capacity: number;
-  price?: number;
-  status: string;
 }
 
 // Context interface

@@ -4,7 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 
 // Helper function to check if we're in development mode
-const isDevelopment = () => {
+const isDevelopment = (): boolean => {
   return import.meta.env.DEV || window.location.hostname === 'localhost';
 };
 

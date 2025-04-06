@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -78,7 +77,6 @@ const PartnersManagement = () => {
     if (!editingPartner) return;
     
     if (editingPartner.id) {
-      // Update existing partner
       setPartners(partners.map(partner => 
         partner.id === editingPartner.id ? editingPartner : partner
       ));
@@ -87,7 +85,6 @@ const PartnersManagement = () => {
         description: "Partner updated successfully.",
       });
     } else {
-      // Add new partner
       const newPartner = {
         ...editingPartner,
         id: Date.now().toString()

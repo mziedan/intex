@@ -110,6 +110,7 @@ export const useImageUpload = () => {
   };
 };
 
+// Export the hook as a named export and as a default
 export default {
   uploadFile,
   deleteFile,

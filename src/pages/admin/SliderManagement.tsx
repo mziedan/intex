@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -81,7 +80,6 @@ const SliderManagement = () => {
     if (!editingSlider) return;
     
     if (editingSlider.id) {
-      // Update existing slider
       setSliders(sliders.map(slider => 
         slider.id === editingSlider.id ? editingSlider : slider
       ));
@@ -90,7 +88,6 @@ const SliderManagement = () => {
         description: "Slider image updated successfully.",
       });
     } else {
-      // Add new slider
       const newSlider = {
         ...editingSlider,
         id: Date.now().toString()

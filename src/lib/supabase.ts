@@ -123,3 +123,17 @@ export type CustomPage = {
   created_at?: string;
   updated_at?: string;
 };
+
+// Export a dummy supabase object so imports don't break
+export const supabase = {
+  from: () => ({
+    select: () => ({
+      eq: () => ({
+        order: () => ({
+          data: [],
+          error: null
+        })
+      })
+    })
+  })
+};

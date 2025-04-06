@@ -12,10 +12,10 @@
 // Change to false when deploying to production
 define('DEVELOPMENT_MODE', true);
 
-// Database connection details
+// Database connection details - update these with your real database credentials
 define('DB_HOST', 'localhost');
-define('DB_USER', 'your_db_username');
-define('DB_PASS', 'your_db_password');
+define('DB_USER', 'root'); // Your database username
+define('DB_PASS', ''); // Your database password 
 define('DB_NAME', 'excellence_training');
 
 // Create a database connection

@@ -36,7 +36,7 @@ const Index = () => {
     if (categories && categories.length > 0) {
       const formattedCategories = categories.map(cat => ({
         ...cat,
-        image: cat.image_url || `/images/categories/${cat.slug}.jpg` // Use existing image or fallback
+        image: cat.image || `/images/categories/${cat.slug}.jpg` // Use existing image or fallback
       }));
       setMockCategories(formattedCategories);
     }

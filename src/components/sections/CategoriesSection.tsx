@@ -9,6 +9,9 @@ interface CategoriesSectionProps {
 }
 
 const CategoriesSection: React.FC<CategoriesSectionProps> = ({ categories, isVisible }) => {
+  // Ensure categories is always an array
+  const safeCategories = Array.isArray(categories) ? categories : [];
+
   return (
     <section 
       id="categories" 
@@ -25,28 +28,34 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({ categories, isVis
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((category, index) => (
-            <div 
-              key={category.id}
-              className={`transition-all duration-700 delay-${index * 100} ${
-                isVisible 
-                  ? 'opacity-100 translate-y-0' 
-                  : 'opacity-0 translate-y-10'
-              }`}
-            >
-              <CategoryCard 
-                item={{
-                  id: category.id,
-                  name: category.name,
-                  slug: category.slug,
-                  image: category.image
-                }} 
-                type="category" 
-              />
-            </div>
-          ))}
-        </div>
+        {safeCategories.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {safeCategories.map((category, index) => (
+              <div 
+                key={category.id}
+                className={`transition-all duration-700 delay-${index * 100} ${
+                  isVisible 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-10'
+                }`}
+              >
+                <CategoryCard 
+                  item={{
+                    id: category.id,
+                    name: category.name,
+                    slug: category.slug,
+                    image: category.image
+                  }} 
+                  type="category" 
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center text-gray-500">
+            <p>No categories available at the moment. Please check back later.</p>
+          </div>
+        )}
       </div>
     </section>
   );

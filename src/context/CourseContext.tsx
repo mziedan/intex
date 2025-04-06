@@ -66,15 +66,16 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     try {
       // Fetch categories using API service
       const categoriesData = await apiService.getCategories();
-
-      // Assuming the API returns categories with subcategories
-      // Or we can fetch subcategories separately if needed
+      
+      // Ensure we always return an array
+      const categoriesArray = (categoriesData as any[]) || [];
       
       // Update state with fetched categories
-      setCategories(categoriesData as Category[]);
-      return categoriesData as Category[];
+      setCategories(categoriesArray as Category[]);
+      return categoriesArray as Category[];
     } catch (err) {
       console.error('Error fetching categories:', err);
+      setCategories([]);
       throw err;
     }
   };
@@ -85,14 +86,15 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       // Fetch featured courses using API service
       const coursesData = await apiService.getFeaturedCourses();
       
-      // Format courses with category name and slug if needed
-      // This would depend on how your API returns data
+      // Ensure we always return an array
+      const coursesArray = (coursesData as any[]) || [];
       
       // Update state with fetched courses
-      setFeaturedCourses(coursesData as Course[]);
-      return coursesData as Course[];
+      setFeaturedCourses(coursesArray as Course[]);
+      return coursesArray as Course[];
     } catch (err) {
       console.error('Error fetching featured courses:', err);
+      setFeaturedCourses([]);
       throw err;
     }
   };
@@ -108,13 +110,13 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
       
       // Also fetch sessions for this course if needed
-      const sessionsData = await apiService.getUpcomingSessions((courseData as Course).id);
+      const sessionsData = await apiService.getUpcomingSessions((courseData as any).id);
       
       // Combine course with sessions and category info
-      const course: Course = {
-        ...(courseData as Course),
-        sessions: sessionsData as Session[]
-      };
+      const course = {
+        ...(courseData as any),
+        sessions: (sessionsData as any[]) || []
+      } as Course;
 
       return course;
     } catch (err) {
@@ -133,8 +135,7 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         throw new Error(`Category with slug "${slug}" not found`);
       }
       
-      // Add any additional processing if needed
-      
+      // Cast to Category type
       return categoryData as Category;
     } catch (err) {
       console.error(`Error fetching category by slug "${slug}":`, err);
@@ -159,7 +160,7 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       // This is just a placeholder until you implement the API
       const mockSubcategory: Subcategory = {
         id: "subcategory-1",
-        category_id: (categoryData as Category).id,
+        category_id: (categoryData as any).id,
         name: "Subcategory Name",
         slug: subcategorySlug,
       };
@@ -177,7 +178,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       // Fetch courses by category using API service
       const coursesData = await apiService.getCoursesByCategory(categoryId);
       
-      return coursesData as Course[];
+      // Ensure we always return an array
+      return (coursesData as any[]) || [];
     } catch (err) {
       console.error(`Error fetching courses by category ID "${categoryId}":`, err);
       throw err;
@@ -190,7 +192,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       // Fetch courses by subcategory using API service
       const coursesData = await apiService.getCoursesBySubcategory(subcategoryId);
       
-      return coursesData as Course[];
+      // Ensure we always return an array
+      return (coursesData as any[]) || [];
     } catch (err) {
       console.error(`Error fetching courses by subcategory ID "${subcategoryId}":`, err);
       throw err;
@@ -207,7 +210,8 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       // Search courses using API service
       const coursesData = await apiService.searchCourses(query);
       
-      return coursesData as Course[];
+      // Ensure we always return an array
+      return (coursesData as any[]) || [];
     } catch (err) {
       console.error(`Error searching courses with query "${query}":`, err);
       throw err;

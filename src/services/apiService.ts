@@ -27,7 +27,7 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => {
     // Return the data property of the response
-    return response.data;
+    return response.data || []; // Ensure we always return at least an empty array
   },
   (error) => {
     // Handle common errors here (like 401 unauthorized)

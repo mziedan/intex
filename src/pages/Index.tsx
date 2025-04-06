@@ -27,7 +27,7 @@ const Index = () => {
     queryFn: async () => {
       try {
         const data = await apiService.getActiveSliders();
-        return data as Slider[];
+        return (data as any[]) || []; // Ensure we always return an array
       } catch (error) {
         console.error("Error fetching sliders:", error);
         return [];
@@ -42,15 +42,21 @@ const Index = () => {
   
   // Convert Course context data to format expected by components
   useEffect(() => {
-    if (categories && categories.length > 0) {
+    // Check if categories is an array before trying to map over it
+    if (categories && Array.isArray(categories) && categories.length > 0) {
       const formattedCategories = categories.map(cat => ({
         ...cat,
         image: cat.image || `/images/categories/${cat.slug}.jpg` // Use existing image or fallback
       }));
       setMockCategories(formattedCategories);
+    } else {
+      // Set to empty array if categories is not available or not an array
+      setMockCategories([]);
+      console.log("Categories data is not an array:", categories);
     }
     
-    if (featuredCourses && featuredCourses.length > 0) {
+    // Check if featuredCourses is an array before trying to map over it
+    if (featuredCourses && Array.isArray(featuredCourses) && featuredCourses.length > 0) {
       const formattedCourses = featuredCourses.map(course => ({
         ...course,
         image: course.image_url || '/placeholder.svg',
@@ -61,12 +67,16 @@ const Index = () => {
         sessions: course.sessions || []
       }));
       setMockFeatured(formattedCourses);
+    } else {
+      // Set to empty array if featuredCourses is not available or not an array
+      setMockFeatured([]);
+      console.log("Featured courses data is not an array:", featuredCourses);
     }
   }, [categories, featuredCourses]);
 
   // Format slider data for the component
-  const formattedSlides = Array.isArray(heroSlides) ? heroSlides.map((slide: Slider) => ({
-    ...slide,
+  const formattedSlides = Array.isArray(heroSlides) ? heroSlides.map((slide: any) => ({
+    id: slide.id || '1',
     title: slide.title || 'Welcome to Excellence Training',
     subtitle: slide.subtitle || 'Empowering professionals through world-class training programs',
     image: slide.image_url || '/images/slider/default.jpg',

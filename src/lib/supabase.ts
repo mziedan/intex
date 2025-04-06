@@ -10,8 +10,6 @@ if (supabaseUrl === 'https://your-project-url.supabase.co' || supabaseAnonKey ==
   console.warn('Using default Supabase credentials. Please configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables for proper functionality.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 // Types based on your database schema
 export type Category = {
   id: string;

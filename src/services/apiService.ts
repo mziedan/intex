@@ -26,6 +26,7 @@ apiClient.interceptors.request.use(
 // Add a response interceptor for handling common response tasks
 apiClient.interceptors.response.use(
   (response) => {
+    // Return the data property of the response
     return response.data;
   },
   (error) => {

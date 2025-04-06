@@ -24,6 +24,37 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     sendError('Method not allowed', 405);
 }
 
+// In development environment or when database is not yet set up
+// return mock data to ensure the UI works correctly
+if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
+    $mockSliders = [
+        [
+            'id' => '1',
+            'title' => 'Enhance Your Skills',
+            'title_ar' => 'تعزيز مهاراتك',
+            'subtitle' => 'Join our world-class training programs to advance your career',
+            'subtitle_ar' => 'انضم إلى برامجنا التدريبية ذات المستوى العالمي لتطوير حياتك المهنية',
+            'image_url' => '/images/slider/slide1.jpg',
+            'button_text' => 'Explore Courses',
+            'button_text_ar' => 'استكشف الدورات',
+            'button_link' => '/courses'
+        ],
+        [
+            'id' => '2',
+            'title' => 'Learn from Experts',
+            'title_ar' => 'تعلم من الخبراء',
+            'subtitle' => 'Our instructors bring years of industry experience to the classroom',
+            'subtitle_ar' => 'يجلب مدرسونا سنوات من الخبرة في الصناعة إلى الفصل الدراسي',
+            'image_url' => '/images/slider/slide2.jpg',
+            'button_text' => 'Meet Our Team',
+            'button_text_ar' => 'قابل فريقنا',
+            'button_link' => '/about'
+        ]
+    ];
+    sendResponse($mockSliders);
+    exit;
+}
+
 // Get database connection
 $conn = getDBConnection();
 
@@ -66,5 +97,7 @@ try {
 } catch (Exception $e) {
     sendError("Error fetching sliders: " . $e->getMessage(), 500);
 } finally {
-    $conn->close();
+    if (isset($conn) && $conn) {
+        $conn->close();
+    }
 }

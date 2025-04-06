@@ -8,8 +8,22 @@ async function handleResponse(response: Response) {
     const error = await response.json().catch(() => ({}));
     throw new Error(error.message || `API error: ${response.status}`);
   }
+  
+  const contentType = response.headers.get('content-type');
+  
+  // Make sure we're getting JSON back
+  if (!contentType || !contentType.includes('application/json')) {
+    console.error('Non-JSON response received:', contentType);
+    throw new Error('API returned non-JSON response');
+  }
+  
   return response.json();
 }
+
+// Helper function to check if we're in development mode
+const isDevelopment = () => {
+  return import.meta.env.DEV || window.location.hostname === 'localhost';
+};
 
 // Helper function to make API requests
 async function apiRequest<T>(
@@ -27,6 +41,14 @@ async function apiRequest<T>(
 
     if (data) {
       options.body = JSON.stringify(data);
+    }
+
+    // Add development header when in development mode
+    if (isDevelopment()) {
+      options.headers = {
+        ...options.headers,
+        'X-Development': 'true'
+      };
     }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, options);

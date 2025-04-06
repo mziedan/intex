@@ -3,8 +3,20 @@ import { useToast } from '@/hooks/use-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
+// Helper function to check if we're in development mode
+const isDevelopment = () => {
+  return import.meta.env.DEV || window.location.hostname === 'localhost';
+};
+
 export async function uploadImage(file: File, folder: string): Promise<string> {
   try {
+    // For development mode, return a mock URL
+    if (isDevelopment()) {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return `/mock-uploads/${folder}/${Date.now()}.jpg`;
+    }
+
     const formData = new FormData();
     formData.append('image', file);
     formData.append('folder', folder);

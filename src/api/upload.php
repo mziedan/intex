@@ -10,11 +10,11 @@
 // Set headers
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 // Define allowed folders
-$allowedFolders = ['sliders', 'courses', 'categories', 'partners', 'instructors', 'subcategories'];
+$allowedFolders = ['sliders', 'courses', 'categories', 'subcategories', 'partners', 'instructors'];
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -39,6 +39,17 @@ if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
 if (!isset($_POST['folder']) || !in_array($_POST['folder'], $allowedFolders)) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid or missing folder parameter']);
+    exit;
+}
+
+// For development: Use a mock response
+if (isset($_SERVER['HTTP_X_DEVELOPMENT']) && $_SERVER['HTTP_X_DEVELOPMENT'] === 'true') {
+    // Return a mock URL for development
+    $mockUrl = '/mock-uploads/' . $_POST['folder'] . '/' . uniqid() . '.jpg';
+    echo json_encode([
+        'success' => true,
+        'imageUrl' => $mockUrl
+    ]);
     exit;
 }
 

@@ -33,6 +33,80 @@ if (empty($slug)) {
     sendError('Category slug is required', 400);
 }
 
+// In development mode, return mock data
+if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
+    // Mock data for some common category slugs
+    $mockCategories = [
+        'business' => [
+            'id' => '1',
+            'name' => 'Business',
+            'name_ar' => 'الأعمال',
+            'slug' => 'business',
+            'subcategories' => [
+                [
+                    'id' => '101',
+                    'name' => 'Management',
+                    'name_ar' => 'الإدارة',
+                    'slug' => 'management'
+                ],
+                [
+                    'id' => '102',
+                    'name' => 'Leadership',
+                    'name_ar' => 'القيادة',
+                    'slug' => 'leadership'
+                ]
+            ]
+        ],
+        'technology' => [
+            'id' => '2',
+            'name' => 'Technology',
+            'name_ar' => 'التكنولوجيا',
+            'slug' => 'technology',
+            'subcategories' => [
+                [
+                    'id' => '201',
+                    'name' => 'Programming',
+                    'name_ar' => 'البرمجة',
+                    'slug' => 'programming'
+                ],
+                [
+                    'id' => '202',
+                    'name' => 'Data Science',
+                    'name_ar' => 'علوم البيانات',
+                    'slug' => 'data-science'
+                ]
+            ]
+        ],
+        'marketing' => [
+            'id' => '3',
+            'name' => 'Marketing',
+            'name_ar' => 'التسويق',
+            'slug' => 'marketing',
+            'subcategories' => [
+                [
+                    'id' => '301',
+                    'name' => 'Digital Marketing',
+                    'name_ar' => 'التسويق الرقمي',
+                    'slug' => 'digital-marketing'
+                ],
+                [
+                    'id' => '302',
+                    'name' => 'Social Media',
+                    'name_ar' => 'وسائل التواصل الاجتماعي',
+                    'slug' => 'social-media'
+                ]
+            ]
+        ]
+    ];
+    
+    if (isset($mockCategories[$slug])) {
+        sendResponse($mockCategories[$slug]);
+    } else {
+        sendError('Category not found', 404);
+    }
+    exit;
+}
+
 // Get database connection
 $conn = getDBConnection();
 
@@ -95,5 +169,7 @@ try {
 } catch (Exception $e) {
     sendError("Error fetching category: " . $e->getMessage(), 500);
 } finally {
-    $conn->close();
+    if (isset($conn) && $conn) {
+        $conn->close();
+    }
 }

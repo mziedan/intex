@@ -7,6 +7,11 @@
  * and helper functions for database operations.
  */
 
+// Define if we're in development mode
+// This will return mock data instead of hitting the database
+// Change to false when deploying to production
+define('DEVELOPMENT_MODE', true);
+
 // Database connection details
 define('DB_HOST', 'localhost');
 define('DB_USER', 'your_db_username');
@@ -15,6 +20,12 @@ define('DB_NAME', 'excellence_training');
 
 // Create a database connection
 function getDBConnection() {
+    // If in development mode and mock data is being used, return null
+    if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
+        // Return a mock connection or null when in development
+        return null;
+    }
+    
     $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     
     // Check connection

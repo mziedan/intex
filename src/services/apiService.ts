@@ -1,5 +1,6 @@
 
 import axios from 'axios';
+import { Category, Course, Session, Slider, Partner, CompanyInfo, CustomPage } from '@/lib/supabase';
 
 // Base URL for API requests
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -56,34 +57,34 @@ apiClient.interceptors.response.use(
 // Export the API service with specific endpoints
 const apiService = {
   // Categories
-  getCategories: () => apiClient.get('/categories'),
-  getCategoryBySlug: (slug: string) => apiClient.get(`/categories/${slug}`),
+  getCategories: (): Promise<Category[]> => apiClient.get('/categories'),
+  getCategoryBySlug: (slug: string): Promise<Category | null> => apiClient.get(`/categories/${slug}`),
   
   // Courses
-  getCourses: () => apiClient.get('/courses'),
-  getFeaturedCourses: () => apiClient.get('/courses/featured'),
-  getCourseBySlug: (slug: string) => apiClient.get(`/courses/${slug}`),
-  getCoursesByCategory: (categoryId: string) => apiClient.get(`/courses/category/${categoryId}`),
-  getCoursesBySubcategory: (subcategoryId: string) => apiClient.get(`/courses/subcategory/${subcategoryId}`),
-  searchCourses: (query: string) => apiClient.get(`/courses/search?q=${query}`),
+  getCourses: (): Promise<Course[]> => apiClient.get('/courses'),
+  getFeaturedCourses: (): Promise<Course[]> => apiClient.get('/courses/featured'),
+  getCourseBySlug: (slug: string): Promise<Course | null> => apiClient.get(`/courses/${slug}`),
+  getCoursesByCategory: (categoryId: string): Promise<Course[]> => apiClient.get(`/courses/category/${categoryId}`),
+  getCoursesBySubcategory: (subcategoryId: string): Promise<Course[]> => apiClient.get(`/courses/subcategory/${subcategoryId}`),
+  searchCourses: (query: string): Promise<Course[]> => apiClient.get(`/courses/search?q=${query}`),
   
   // Sessions
-  getUpcomingSessions: (courseId: string) => apiClient.get(`/sessions/upcoming/${courseId}`),
+  getUpcomingSessions: (courseId: string): Promise<Session[]> => apiClient.get(`/sessions/upcoming/${courseId}`),
   
   // Registrations
-  createRegistration: (data: any) => apiClient.post('/registrations', data),
+  createRegistration: (data: any): Promise<any> => apiClient.post('/registrations', data),
   
   // Sliders
-  getActiveSliders: () => apiClient.get('/sliders/active'),
+  getActiveSliders: (): Promise<Slider[]> => apiClient.get('/sliders/active'),
   
   // Partners
-  getPartners: () => apiClient.get('/partners'),
+  getPartners: (): Promise<Partner[]> => apiClient.get('/partners'),
   
   // Company Info
-  getCompanyInfo: () => apiClient.get('/company-info'),
+  getCompanyInfo: (): Promise<CompanyInfo | null> => apiClient.get('/company-info'),
   
   // Custom Pages
-  getCustomPage: (slug: string) => apiClient.get(`/pages/${slug}`),
+  getCustomPage: (slug: string): Promise<CustomPage | null> => apiClient.get(`/pages/${slug}`),
 };
 
 export default apiService;

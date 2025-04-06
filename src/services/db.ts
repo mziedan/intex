@@ -63,12 +63,12 @@ export const coursesService = {
       }
       
       // Fetch sessions for this course
-      const courseObj = course as any;
+      const courseObj = course as Course;
       const sessions = await apiService.getUpcomingSessions(courseObj.id);
       const sessionArray = Array.isArray(sessions) ? sessions : [];
       
       return {
-        ...course as Course,
+        ...courseObj,
         sessions: sessionArray as Session[]
       };
     } catch (error) {

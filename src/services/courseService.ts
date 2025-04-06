@@ -30,7 +30,7 @@ export const courseService = {
   getBySlug: async (slug: string): Promise<Course | null> => {
     try {
       const data = await apiService.getCourseBySlug(slug);
-      return data ? data as Course : null;
+      return data as Course | null;
     } catch (error) {
       console.error(`Error fetching course with slug ${slug}:`, error);
       return null;
@@ -88,7 +88,7 @@ export const categoryService = {
   getBySlug: async (slug: string): Promise<Category | null> => {
     try {
       const data = await apiService.getCategoryBySlug(slug);
-      return data ? data as Category : null;
+      return data as Category | null;
     } catch (error) {
       console.error(`Error fetching category with slug ${slug}:`, error);
       return null;

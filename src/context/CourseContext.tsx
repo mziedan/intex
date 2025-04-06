@@ -110,7 +110,7 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
       
       // Also fetch sessions for this course if needed
-      const courseDataObj = courseData as any;
+      const courseDataObj = courseData as Course;
       const sessionsData = await apiService.getUpcomingSessions(courseDataObj.id);
       
       // Combine course with sessions and category info
@@ -159,7 +159,7 @@ export const CourseProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         throw new Error(`Category with slug "${categorySlug}" not found`);
       }
       
-      const categoryDataObj = categoryData as any;
+      const categoryDataObj = categoryData as Category;
       
       // Now we would need to get the subcategory
       // This is just a placeholder until you implement the API

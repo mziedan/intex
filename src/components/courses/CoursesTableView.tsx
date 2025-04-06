@@ -65,7 +65,7 @@ const CoursesTableView: React.FC<CoursesTableViewProps> = ({ courses, subcategor
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-2 text-brand-700" />
                       <span>
-                        {new Date(session.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(session.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {new Date(session.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(session.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </span>
                     </div>
                   </TableCell>

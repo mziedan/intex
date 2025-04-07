@@ -41,6 +41,9 @@ apiClient.interceptors.response.use(
       if (error.response.status === 401) {
         // Handle unauthorized access
         console.error('Unauthorized access');
+      } else if (error.response.status === 404) {
+        // Handle not found
+        console.error('Resource not found');
       }
     } else if (error.request) {
       // The request was made but no response was received
@@ -85,6 +88,16 @@ const apiService = {
   
   // Custom Pages
   getCustomPage: (slug: string): Promise<CustomPage | null> => apiClient.get(`/pages/${slug}`),
+  
+  // Image Upload
+  uploadImage: (formData: FormData): Promise<{success: boolean; imageUrl: string}> => {
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+    return apiClient.post('/upload', formData, config);
+  }
 };
 
 export default apiService;

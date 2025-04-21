@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -14,48 +13,43 @@ import { statistics, partners, companyInfo } from '@/utils/mockData';
 import { useCourses } from '@/context/CourseContext';
 import apiService from '@/services/apiService';
 import { useQuery } from '@tanstack/react-query';
-import { Slider } from '@/lib/supabase';
+import { Slider } from '@/types';
 
 const Index = () => {
   const { categories, featuredCourses, loading } = useCourses();
   const [mockCategories, setMockCategories] = useState<any[]>([]);
   const [mockFeatured, setMockFeatured] = useState<any[]>([]);
   
-  // Fetch slider data with React Query (using apiService instead of direct Supabase calls)
   const { data: heroSlides = [], isLoading: slidersLoading } = useQuery({
     queryKey: ['sliders'],
     queryFn: async () => {
       try {
         const data = await apiService.getActiveSliders();
-        return Array.isArray(data) ? data : []; // Ensure we always return an array
+        return Array.isArray(data) ? data : [];
       } catch (error) {
         console.error("Error fetching sliders:", error);
         return [];
       }
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
   
   const visibleElements = useVisibilityObserver({
     sectionIds: ['about', 'partners', 'categories', 'courses', 'stats', 'cta']
   });
   
-  // Convert Course context data to format expected by components
   useEffect(() => {
-    // Check if categories is an array before trying to map over it
     if (categories && Array.isArray(categories) && categories.length > 0) {
       const formattedCategories = categories.map(cat => ({
         ...cat,
-        image: cat.image || `/images/categories/${cat.slug}.jpg` // Use existing image or fallback
+        image: cat.image || `/images/categories/${cat.slug}.jpg`
       }));
       setMockCategories(formattedCategories);
     } else {
-      // Set to empty array if categories is not available or not an array
       setMockCategories([]);
       console.log("Categories data is not an array:", categories);
     }
     
-    // Check if featuredCourses is an array before trying to map over it
     if (featuredCourses && Array.isArray(featuredCourses) && featuredCourses.length > 0) {
       const formattedCourses = featuredCourses.map(course => ({
         ...course,
@@ -68,13 +62,11 @@ const Index = () => {
       }));
       setMockFeatured(formattedCourses);
     } else {
-      // Set to empty array if featuredCourses is not available or not an array
       setMockFeatured([]);
       console.log("Featured courses data is not an array:", featuredCourses);
     }
   }, [categories, featuredCourses]);
 
-  // Format slider data for the component
   const formattedSlides = Array.isArray(heroSlides) ? heroSlides.map((slide: any) => ({
     id: slide.id || '1',
     title: slide.title || 'Welcome to Excellence Training',
@@ -89,7 +81,6 @@ const Index = () => {
       <Header />
       
       <main className="flex-grow pt-16">
-        {/* Hero Section */}
         <HeroSection slides={formattedSlides.length > 0 ? formattedSlides : [
           {
             id: '1',
@@ -109,37 +100,31 @@ const Index = () => {
           }
         ]} />
         
-        {/* About Section */}
         <AboutSection 
           companyInfo={companyInfo} 
           isVisible={visibleElements.about} 
         />
         
-        {/* Partners Section */}
         <PartnersSection 
           partners={partners} 
           isVisible={visibleElements.partners} 
         />
         
-        {/* Course Categories Section */}
         <CategoriesSection 
           categories={mockCategories} 
           isVisible={visibleElements.categories} 
         />
         
-        {/* Featured Courses Section */}
         <CoursesSection 
           featuredCourses={mockFeatured} 
           isVisible={visibleElements.courses} 
         />
         
-        {/* Statistics Section */}
         <StatisticsSection 
           statistics={statistics} 
           isVisible={visibleElements.stats} 
         />
         
-        {/* CTA Section */}
         <CTASection isVisible={visibleElements.cta} />
       </main>
       

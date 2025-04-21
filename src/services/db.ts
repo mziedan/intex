@@ -1,7 +1,6 @@
-
 // Instead of using Supabase directly, we'll use our apiService
 import apiService from './apiService';
-import { Category, Subcategory, Course, Session, Registration, Slider, Partner, CompanyInfo, CustomPage } from '@/lib/supabase';
+import { Category, Subcategory, Course, Session, Registration, Slider, Partner, CompanyInfo, CustomPage } from '@/types';
 
 // Helper function to check if we're in development mode
 const isDevelopment = () => {

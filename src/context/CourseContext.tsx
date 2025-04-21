@@ -1,7 +1,7 @@
 
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import apiService from '@/services/apiService';
-import { Category, Course, Session, Subcategory } from '@/lib/supabase';
+import { Category, Course, Session, Subcategory } from '@/types';
 
 // Re-export types
 export type { Category, Course, Session, Subcategory };

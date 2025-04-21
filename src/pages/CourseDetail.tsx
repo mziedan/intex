@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, MapPin, Users, ChevronDown, ChevronUp } from 'lucide-react';
@@ -7,7 +6,7 @@ import Footer from '@/components/layout/Footer';
 import ContactForm from '@/components/ui/ContactForm';
 import { useCourses } from '@/context/CourseContext';
 import { format } from 'date-fns';
-import { Course, Category } from '@/lib/supabase';
+import { Course, Category } from '@/types';
 
 const CourseDetail = () => {
   const { courseSlug } = useParams<{ courseSlug: string }>();

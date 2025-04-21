@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import apiService from './apiService';
-import { supabase } from '@/lib/supabase';
 
 /**
  * Upload a file to the server

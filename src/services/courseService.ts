@@ -1,6 +1,5 @@
-
 import apiService from './apiService';
-import { Course, Category, Subcategory, Session } from '@/lib/supabase';
+import { Course, Category, Subcategory, Session } from '@/types';
 
 // Service for courses
 export const courseService = {

@@ -1,416 +1,342 @@
 
-# Excellence Training API Documentation
+# Excellence Training Platform API Documentation
 
-## Overview
+This file documents the RESTful API endpoints for communicating between the **frontend** and the **backend** services using a MySQL database.
 
-This document provides a comprehensive guide to the Excellence Training API. The API allows clients to interact with the training platform's core functionalities, including browsing courses, categories, sessions, and managing registrations.
+## Table of Contents
 
-## Base URL
+- [General Principles](#general-principles)
+- [API Base URL](#api-base-url)
+- [Authentication](#authentication)
+- [Endpoints Overview](#endpoints-overview)
+- [Endpoints & Schemas](#endpoints--schemas)
+  - [Categories](#categories)
+  - [Courses](#courses)
+  - [Sessions](#sessions)
+  - [Registrations](#registrations)
+  - [Sliders](#sliders)
+  - [Partners](#partners)
+  - [Company Info](#company-info)
+  - [Custom Pages](#custom-pages)
+  - [Image Upload](#image-upload)
+- [Error Handling](#error-handling)
+- [Database Schema Reference](#database-schema-reference)
+- [Best Practices](#best-practices)
+- [Changelog](#changelog)
 
-All API endpoints are relative to the base URL:
+---
+
+## General Principles
+
+- **All endpoints return JSON.**
+- **Authentication:** Currently, most endpoints are public; sensitive operations may require future authentication.
+- **Data source:** All endpoints communicate with a centralized MySQL database (see schema [`src/database/schema.sql`](../database/schema.sql)).
+
+---
+
+## API Base URL
 
 ```
 http://localhost:5000/api
 ```
+*Set this value as `VITE_API_BASE_URL` in your frontend environment file.*
 
-For production, update the VITE_API_BASE_URL in your .env file.
+---
 
-## Response Format
+## Endpoints Overview
 
-All responses are in JSON format. Successful responses return the requested data, while error responses follow this structure:
+| Entity        | Endpoint                 | Methods | Description                 |
+|---------------|--------------------------|---------|-----------------------------|
+| Categories    | `/categories`            | GET     | List all categories         |
+|               | `/categories/slug/:slug` | GET     | Get a category by slug      |
+| Courses       | `/courses`               | GET     | List all courses            |
+|               | `/courses/slug/:slug`    | GET     | Get a course by slug        |
+|               | `/courses/category/:id`  | GET     | Courses by category         |
+|               | `/courses/subcategory/:id` | GET   | Courses by subcategory      |
+|               | `/courses/featured`      | GET     | Featured courses            |
+|               | `/courses/search?q=...`  | GET     | Search courses (by keyword) |
+| Sessions      | `/sessions/upcoming/:id` | GET     | Upcoming sessions by course |
+| Registrations | `/registrations`         | POST    | Register a user for session |
+| Sliders       | `/sliders`               | GET     | List active sliders         |
+| Partners      | `/partners`              | GET     | List all active partners    |
+| Company Info  | `/company-info`          | GET     | Company core information    |
+| Custom Pages  | `/pages/:slug`           | GET     | Get custom page by slug     |
+| Upload        | `/upload`                | POST    | Upload an image             |
 
-```json
-{
-  "error": "Error message"
-}
-```
+---
 
-## Authentication
+## Endpoints & Schemas
 
-Currently, the API is open for read operations. Future versions may implement authentication for write operations.
+### Categories
 
-## Development Mode
-
-The API supports a development mode that returns mock data without requiring a database connection. This is controlled by the `DEVELOPMENT_MODE` constant in `config.php`.
-
-## API Endpoints
-
-### 1. Categories
-
-#### Get All Categories
-
-Retrieves all categories with their subcategories.
-
-**Endpoint:** `GET /categories`
-
-**Response:**
-```json
-[
-  {
-    "id": "1",
-    "name": "Business",
-    "name_ar": "الأعمال",
-    "slug": "business",
-    "image_url": "/images/categories/business.jpg",
-    "subcategories": [
-      {
-        "id": "101",
-        "name": "Management",
-        "name_ar": "الإدارة",
-        "slug": "management",
-        "image_url": "/images/subcategories/management.jpg"
-      }
-    ]
-  }
-]
-```
-
-#### Get Category by Slug
-
-Retrieves a single category by its slug.
-
-**Endpoint:** `GET /categories/slug/{slug}`
-
-**Parameters:**
-- `slug`: The unique slug identifier for the category
-
-**Response:** Same format as a single category object from the categories list.
-
-### 2. Courses
-
-#### Get All Courses
-
-Retrieves all active courses.
-
-**Endpoint:** `GET /courses`
-
-**Response:**
-```json
-[
-  {
-    "id": "1",
-    "title": "Leadership Essentials",
-    "title_ar": "أساسيات القيادة",
-    "slug": "leadership-essentials",
-    "short_description": "Learn core leadership principles",
-    "short_description_ar": "تعلم مبادئ القيادة الأساسية",
-    "price": 299.99,
-    "discount_price": 249.99,
-    "duration": "4 weeks",
-    "level": "intermediate",
-    "featured": true,
-    "image_url": "/images/courses/leadership.jpg",
-    "category_id": "1",
-    "subcategory_id": "102",
-    "category_name": "Business",
-    "category_name_ar": "الأعمال",
-    "category_slug": "business",
-    "subcategory_name": "Leadership",
-    "subcategory_name_ar": "القيادة",
-    "subcategory_slug": "leadership",
-    "sessions": [
-      {
-        "id": "101",
-        "start_date": "2023-07-15",
-        "end_date": "2023-08-12",
-        "location": "Online",
-        "location_ar": "عبر الإنترنت",
-        "capacity": 30,
-        "registration_count": 12
-      }
-    ]
-  }
-]
-```
-
-#### Get Featured Courses
-
-Retrieves featured courses.
-
-**Endpoint:** `GET /courses/featured`
-
-**Response:** Same format as courses list, filtered to featured courses.
-
-#### Get Course by Slug
-
-Retrieves a single course by its slug, including full details.
-
-**Endpoint:** `GET /courses/slug/{slug}`
-
-**Parameters:**
-- `slug`: The unique slug identifier for the course
-
-**Response:**
-```json
-{
-  "id": "1",
-  "title": "Leadership Essentials",
-  "title_ar": "أساسيات القيادة",
-  "slug": "leadership-essentials",
-  "short_description": "Learn core leadership principles",
-  "short_description_ar": "تعلم مبادئ القيادة الأساسية",
-  "description": "Detailed description of the course...",
-  "description_ar": "وصف تفصيلي للدورة...",
-  "price": 299.99,
-  "discount_price": 249.99,
-  "duration": "4 weeks",
-  "level": "intermediate",
-  "featured": true,
-  "image_url": "/images/courses/leadership.jpg",
-  "category_id": "1",
-  "subcategory_id": "102",
-  "category_name": "Business",
-  "category_name_ar": "الأعمال",
-  "category_slug": "business",
-  "subcategory_name": "Leadership",
-  "subcategory_name_ar": "القيادة",
-  "subcategory_slug": "leadership",
-  "sessions": [
+- **GET `/categories`**  
+  Returns all available categories.
+  **Response:**
+  ```json
+  [
     {
-      "id": "101",
-      "start_date": "2023-07-15",
-      "end_date": "2023-08-12",
+      "id": "1",
+      "name": "Business",
+      "name_ar": "الأعمال",
+      "slug": "business",
+      "image_url": "...",
+      "subcategories": [
+        {
+          "id": "101",
+          "name": "Management",
+          "name_ar": "الإدارة",
+          "slug": "management",
+          "image_url": "..."
+        }
+      ]
+    }
+  ]
+  ```
+
+- **GET `/categories/slug/:slug`**  
+  Returns category info by unique slug.
+  **Response:**  
+  Same as above, for a category.
+
+---
+
+### Courses
+
+- **GET `/courses`**  
+  Returns all courses.
+  **Response:**  
+  ```json
+  [
+    {
+      "id": "12",
+      "title": "Course Title",
+      "title_ar": "عنوان الدورة",
+      "slug": "course-title",
+      "short_description": "...",
+      "description": "...",
+      "description_ar": "...",
+      "price": 299.99,
+      "discount_price": 249.99,
+      "image_url": "...",
+      "duration": "4 weeks",
+      "level": "beginner",
+      "featured": true,
+      "category_id": "1",
+      "subcategory_id": "10",
+      "category_name": "Category Name",
+      "category_slug": "category-slug",
+      "subcategory_name": "Subcategory Name",
+      "subcategory_slug": "subcategory-slug",
+      "sessions": [
+        // See Sessions
+      ]
+    }
+  ]
+  ```
+
+- **GET `/courses/slug/:slug`**  
+  Get detailed info about a single course (all fields).
+  **Response:** (See above, but only one object.)
+
+- **GET `/courses/category/:id`**  
+  All courses belonging to category (by category ID).
+
+- **GET `/courses/subcategory/:id`**  
+  All courses for a subcategory.
+
+- **GET `/courses/featured`**  
+  Only "featured" courses.
+
+- **GET `/courses/search?q=KEYWORD`**  
+  Search by keyword in the title or description.
+
+---
+
+### Sessions
+
+- **GET `/sessions/upcoming/:courseId`**  
+  Returns upcoming session(s) for a course.
+  **Response:**
+  ```json
+  [
+    {
+      "id": "s1",
+      "course_id": "12",
+      "start_date": "2024-06-01",
+      "end_date": "2024-06-30",
       "location": "Online",
       "location_ar": "عبر الإنترنت",
       "capacity": 30,
-      "registration_count": 12
+      "price": 299.99,
+      "status": "upcoming"
     }
   ]
-}
-```
+  ```
 
-#### Get Courses by Category
+---
 
-Retrieves courses belonging to a specific category.
+### Registrations
 
-**Endpoint:** `GET /courses/category/{categoryId}`
-
-**Parameters:**
-- `categoryId`: The ID of the category
-
-**Response:** Same format as courses list, filtered by category.
-
-#### Get Courses by Subcategory
-
-Retrieves courses belonging to a specific subcategory.
-
-**Endpoint:** `GET /courses/subcategory/{subcategoryId}`
-
-**Parameters:**
-- `subcategoryId`: The ID of the subcategory
-
-**Response:** Same format as courses list, filtered by subcategory.
-
-#### Search Courses
-
-Searches for courses based on a query string.
-
-**Endpoint:** `GET /courses/search?q={query}`
-
-**Parameters:**
-- `q`: The search query
-
-**Response:** Same format as courses list, filtered by search results.
-
-### 3. Sessions
-
-#### Get Upcoming Sessions for Course
-
-Retrieves upcoming sessions for a specific course.
-
-**Endpoint:** `GET /sessions/upcoming/{courseId}`
-
-**Parameters:**
-- `courseId`: The ID of the course
-
-**Response:**
-```json
-[
+- **POST `/registrations`**
+  Register a user for a specific course session.
+  **Request Body:**
+  ```json
   {
-    "id": "101",
-    "start_date": "2023-07-15",
-    "end_date": "2023-08-12",
-    "location": "Online",
-    "location_ar": "عبر الإنترنت",
-    "capacity": 30,
-    "price": null,
-    "registration_count": 12
+    "session_id": "s1",
+    "attendee_name": "John Doe",
+    "attendee_email": "john@example.com",
+    "company": "",
+    "job_title": "",
+    "phone": "",
+    "notes": ""
   }
-]
-```
+  ```
+  **Response:**
+  ```json
+  {
+    "id": "r1",
+    "session_id": "s1",
+    "attendee_name": "John Doe",
+    "attendee_email": "john@example.com",
+    "payment_status": "pending",
+    "payment_amount": 299.99,
+    "created_at": "2024-06-15T10:30:00Z"
+  }
+  ```
 
-### 4. Registrations
+---
 
-#### Create Registration
+### Sliders
 
-Creates a new registration for a session.
+- **GET `/sliders`**
+  Lists all "active" slider/banner images for hero or marketing sections.
+  **Response:**
+  ```json
+  [
+    {
+      "id": "sl1",
+      "title": "Slide Title",
+      "title_ar": "عنوان الشريحة",
+      "subtitle": "Slide subtitle",
+      "subtitle_ar": "العنوان الفرعي للشريحة",
+      "image_url": "...",
+      "button_text": "Click Here",
+      "button_text_ar": "انقر هنا",
+      "button_link": "/courses"
+    }
+  ]
+  ```
 
-**Endpoint:** `POST /registrations`
+---
 
-**Request Body:**
-```json
-{
-  "session_id": "101",
-  "attendee_name": "John Doe",
-  "attendee_email": "john@example.com",
-  "company": "Example Corp",
-  "job_title": "Manager",
-  "phone": "+1234567890",
-  "notes": "Any special requirements"
-}
-```
+### Partners
 
-**Response:**
-```json
-{
-  "id": "r1",
-  "session_id": "101",
-  "attendee_name": "John Doe",
-  "attendee_email": "john@example.com",
-  "payment_status": "pending",
-  "payment_amount": 299.99,
-  "created_at": "2023-06-15T10:30:00Z"
-}
-```
+- **GET `/partners`**
+  Lists active partners.
+  **Response:**
+  ```json
+  [
+    {
+      "id": "p1",
+      "name": "Partner Name",
+      "logo_url": "...",
+      "website_url": "https://..."
+    }
+  ]
+  ```
 
-### 5. Sliders
+---
 
-#### Get Active Sliders
+### Company Info
 
-Retrieves all active slider/banner images.
-
-**Endpoint:** `GET /sliders`
-
-**Response:**
-```json
-[
+- **GET `/company-info`**
+  Returns core details for company profile, contact, and social info.
+  **Response:**
+  ```json
   {
     "id": "1",
-    "title": "Enhance Your Skills",
-    "title_ar": "تعزيز مهاراتك",
-    "subtitle": "Join our world-class training programs",
-    "subtitle_ar": "انضم إلى برامجنا التدريبية ذات المستوى العالمي",
-    "image_url": "/images/sliders/slide1.jpg",
-    "button_text": "Explore Courses",
-    "button_text_ar": "استكشف الدورات",
-    "button_link": "/courses"
+    "name": "Excellence Training",
+    "name_ar": "التميز للتدريب",
+    "description": "...",
+    "description_ar": "...",
+    "phone": "+1234567890",
+    "email": "info@example.com",
+    "address": "123 Main St, City",
+    "address_ar": "العنوان بالعربية",
+    "facebook": "...",
+    "twitter": "...",
+    "linkedin": "...",
+    "instagram": "...",
+    "map_location": "12.3456,78.9012"
   }
-]
-```
+  ```
 
-### 6. Partners
+---
 
-#### Get Partners
+### Custom Pages
 
-Retrieves all active partners.
-
-**Endpoint:** `GET /partners`
-
-**Response:**
-```json
-[
+- **GET `/pages/:slug`**
+  Loads custom page content by slug.
+  **Response:**
+  ```json
   {
-    "id": "1",
-    "name": "Partner Company",
-    "logo_url": "/images/partners/partner1.jpg",
-    "website_url": "https://example.com"
+    "id": "p1",
+    "title": "About Us",
+    "title_ar": "من نحن",
+    "slug": "about-us",
+    "content": "Content of the page...",
+    "content_ar": "محتوى الصفحة...",
+    "image": "..."
   }
-]
-```
+  ```
 
-### 7. Company Info
+---
 
-#### Get Company Info
+### Image Upload
 
-Retrieves company information.
+- **POST `/upload`**
+  Upload images (form-data, with 'file' field).
+  **Response:**
+  ```json
+  {
+    "success": true,
+    "url": "/uploads/image123.jpg"
+  }
+  ```
 
-**Endpoint:** `GET /company-info`
+---
 
-**Response:**
-```json
-{
-  "id": "1",
-  "name": "Excellence Training",
-  "name_ar": "التميز للتدريب",
-  "description": "Company description...",
-  "description_ar": "وصف الشركة...",
-  "phone": "+1234567890",
-  "email": "info@example.com",
-  "address": "123 Main St, City, Country",
-  "address_ar": "العنوان بالعربية",
-  "facebook": "https://facebook.com/example",
-  "twitter": "https://twitter.com/example",
-  "linkedin": "https://linkedin.com/company/example",
-  "instagram": "https://instagram.com/example",
-  "map_location": "12.3456,78.9012"
-}
-```
+## Error Handling
 
-### 8. Custom Pages
+- All errors use non-2xx HTTP status and return an error JSON, e.g.:
+  ```json
+  {
+    "error": "Error detail message"
+  }
+  ```
 
-#### Get Custom Page by Slug
+---
 
-Retrieves a custom page by its slug.
+## Database Schema Reference
 
-**Endpoint:** `GET /pages/{slug}`
+See [`src/database/schema.sql`](../database/schema.sql) for the up-to-date MySQL database schema including table definitions and sample inserts.
 
-**Parameters:**
-- `slug`: The slug of the page to retrieve
+---
 
-**Response:**
-```json
-{
-  "id": "1",
-  "title": "About Us",
-  "title_ar": "من نحن",
-  "slug": "about-us",
-  "content": "Content of the about us page...",
-  "content_ar": "محتوى صفحة من نحن...",
-  "image": "/images/pages/about.jpg",
-  "published": true
-}
-```
+## Best Practices
 
-### 9. Image Upload
+- Always check for non-200 responses and handle errors gracefully in your frontend.
+- Use correct HTTP methods (`GET` for fetching, `POST` for creating).
+- For POST and PUT/PATCH requests, use `Content-Type: application/json` or `multipart/form-data` (for upload).
+- Keep your environment variables up to date with the correct API base URL.
 
-#### Upload Image
+---
 
-Uploads an image to the server.
+## Changelog
 
-**Endpoint:** `POST /upload`
+**2024-04-21**  
+- Aligned API and documentation with custom backend implementation and MySQL
+- Deprecated Supabase integration; removed all supabase references
 
-**Request:** FormData with `file` property and optional `folder` property.
+---
 
-**Response:**
-```json
-{
-  "success": true,
-  "url": "/uploads/courses/image123.jpg"
-}
-```
-
-## Error Codes
-
-The API uses standard HTTP status codes:
-
-- 200: Success
-- 400: Bad Request (invalid input)
-- 404: Not Found
-- 405: Method Not Allowed
-- 500: Server Error
-
-## Implementation Notes
-
-### Database Structure
-
-The API works with a MySQL database with tables for categories, subcategories, courses, sessions, registrations, and more. Refer to the `schema.sql` file for the complete database schema.
-
-### Development vs Production
-
-In development mode (`DEVELOPMENT_MODE = true`), the API returns mock data instead of querying the database. This is useful for frontend development without a database.
-
-In production mode (`DEVELOPMENT_MODE = false`), the API connects to the MySQL database defined in the configuration.
-
-### Localization
-
-Many API responses include both English and Arabic translations (suffixed with `_ar`). The frontend application should use the appropriate fields based on the user's language preference.

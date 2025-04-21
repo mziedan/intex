@@ -1,68 +1,228 @@
 
-# Excellence Training API
+# API Documentation
 
-This folder contains the PHP API for the Excellence Training platform. The API provides endpoints for accessing and manipulating data related to courses, categories, sessions, registrations, and more.
+The frontend communicates with a custom Node.js (Express & Firebase) backend you provided at https://github.com/mziedan/intex-firebase/tree/main/backend. Below is a detailed documentation of the REST API endpoints used by this website, their formats, and usage examples.
 
-## Structure
+---
+## Base URL
 
-- `config.php`: Configuration file with database settings and helper functions
-- `index.php`: Main entry point that routes requests to the appropriate handlers
-- `upload.php`: Handles image uploads
+All API endpoints are prefixed by the base URL:
 
-### Folders
+    http://localhost:5000/api
 
-- **categories/**: Endpoints for accessing categories and subcategories
-  - `index.php`: Get all categories
-  - `slug.php`: Get category by slug
+If you deploy elsewhere, update the base URL accordingly in your environment variables.
 
-- **courses/**: Endpoints for accessing courses
-  - `index.php`: Get all courses
-  - `featured.php`: Get featured courses
-  - `slug.php`: Get course by slug
-  - `category.php`: Get courses by category
-  - `subcategory.php`: Get courses by subcategory
-  - `search.php`: Search for courses
+---
 
-- **sessions/**: Endpoints for accessing sessions
-  - `upcoming.php`: Get upcoming sessions for a course
+## Authentication
 
-- **registrations/**: Endpoints for managing registrations
-  - `create.php`: Create a new registration
+> NOTE: If your backend adds authentication, add relevant headers/tokens as documented in your backend.
 
-- **sliders/**: Endpoints for accessing slider images
-  - `active.php`: Get active slider images
+---
 
-- **partners/**: Endpoints for accessing partners
-  - `index.php`: Get all partners
+## Endpoints
 
-- **company-info/**: Endpoints for accessing company information
-  - `index.php`: Get company info
+### 1. Categories
 
-- **pages/**: Endpoints for accessing custom pages
-  - `slug.php`: Get custom page by slug
+- **GET `/categories`**  
+  Returns all categories.
 
-## Development Mode
+  **Response:**
+  ```json
+  [
+    {
+      "id": "1",
+      "name": "Category Name",
+      "slug": "category-slug",
+      "image": "https://...",
+      "subcategories": [
+        {
+          "id": "10",
+          "name": "Subcategory Name",
+          "slug": "subcategory-slug"
+        }
+      ]
+    }
+  ]
+  ```
 
-The API includes a development mode that returns mock data instead of hitting the database. This is controlled by the `DEVELOPMENT_MODE` constant in `config.php`.
+- **GET `/categories/slug/:slug`**  
+  Returns category by slug.
 
-When development mode is enabled, the API will return realistic mock data for all endpoints, making it possible to develop the frontend without a working database.
+  **Response:**  
+  Same as above for a single category.
 
-## API Documentation
+---
 
-For detailed API documentation, refer to the `API_DOCUMENTATION.md` file in the root of the project.
+### 2. Courses
+
+- **GET `/courses`**  
+  List all courses.
+
+- **GET `/courses/slug/:slug`**  
+  Get course by slug.
+
+- **GET `/courses/category/:categoryId`**  
+  Get all courses by category ID.
+
+- **GET `/courses/subcategory/:subcategoryId`**  
+  Get all courses by subcategory ID.
+
+- **GET `/courses/featured`**  
+  Get all featured courses.
+
+- **GET `/courses/search?q=...`**  
+  Search courses by keyword.
+
+- **Example Course object:**
+  ```json
+  {
+    "id": "12",
+    "title": "Course Title",
+    "slug": "course-title",
+    "short_description": "...",
+    "image_url": "...",
+    "category_id": "1",
+    "subcategory_id": "10",
+    "category_name": "Category Name",
+    "duration": "4 weeks",
+    "level": "Beginner",
+    "sessions": [
+      {
+        "id": "s1",
+        "start_date": "2024-06-01T00:00:00Z",
+        "end_date": "2024-06-05T00:00:00Z",
+        "location": "Online"
+      }
+    ]
+  }
+  ```
+
+---
+
+### 3. Sessions
+
+- **GET `/sessions/upcoming/:courseId`**  
+  Returns upcoming session(s) for a course.
+
+  **Response:**  
+  List of session objects.
+
+---
+
+### 4. Registrations
+
+- **POST `/registrations`**  
+  Register a user for a given course/session.
+
+  **Request Body:**
+  ```json
+  {
+    "userId": "abc123",
+    "courseId": "12",
+    "sessionId": "s1",
+    "info": { ... }
+  }
+  ```
+
+  **Response:**
+  ```json
+  { "success": true, "message": "Registration successful!" }
+  ```
+
+---
+
+### 5. Sliders (Banners)
+
+- **GET `/sliders`**  
+  Returns all active slider/banner images.
+
+  **Response:**
+  ```json
+  [
+    {
+      "id": "sl1",
+      "title": "Slide Title",
+      "subtitle": "",
+      "image_url": "...",
+      "button_text": "",
+      "button_link": ""
+    }
+  ]
+  ```
+
+---
+
+### 6. Partners
+
+- **GET `/partners`**  
+  Returns all partner organizations.
+
+---
+
+### 7. Company Info
+
+- **GET `/company-info`**  
+  Returns company information.
+
+---
+
+### 8. Custom Pages
+
+- **GET `/pages/:slug`**  
+  Get a custom page by slug.
+
+---
+
+### 9. File or Image Upload
+
+- **POST `/upload`** (if supported by backend)  
+  Uploads images.  
+  **Request:** FormData with `file` property.
+
+---
+
+## Usage
+
+The frontend uses the above endpoints via `apiService.ts`.  
+Update the `VITE_API_BASE_URL` in your `.env` file to point to your deployed backend.
+
+All API errors are returned as:
+```json
+{ "error": "Message about the error" }
+```
+
+## Development Workflow
+
+If you add or change endpoints in your backend, update the corresponding calls in `apiService.ts`.
+
+---
+## Data Model Example
+
+- **Category:**
+    - id, name, slug, image, subcategories
+- **Course:**
+    - id, title, slug, description, image_url, category_id, subcategory_id, sessions
+- **Session:**
+    - id, start_date, end_date, location
+- **Registration:**
+    - userId, courseId, sessionId, info
+
+Refer to the [backend repo README](https://github.com/mziedan/intex-firebase/tree/main/backend) for more details or special endpoints.
+
+---
 
 ## Error Handling
 
-All API endpoints use consistent error handling that returns appropriate HTTP status codes and error messages in JSON format:
+Errors from the backend are handled and displayed by the UI.  
+If you see a generic error, check the network response for useful messages.
 
-```json
-{
-  "error": "Error message"
-}
-```
+## FAQ
 
-## Security Considerations
+- **How do I connect frontend to a different backend?**
+  - Set `VITE_API_BASE_URL` in your environment.
 
-- All input is sanitized using the `sanitizeInput()` function defined in `config.php`
-- SQL queries use prepared statements to prevent SQL injection
-- CORS headers are set to allow cross-origin requests during development
+- **How do I add a new backend feature?**
+  - Update your backend, then update `apiService.ts` and this documentation.
+
+---

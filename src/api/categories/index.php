@@ -72,52 +72,6 @@ if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
                     'image_url' => '/images/subcategories/data-science.jpg'
                 ]
             ]
-        ],
-        [
-            'id' => '3',
-            'name' => 'Marketing',
-            'name_ar' => 'التسويق',
-            'slug' => 'marketing',
-            'image_url' => '/images/categories/marketing.jpg',
-            'subcategories' => [
-                [
-                    'id' => '301',
-                    'name' => 'Digital Marketing',
-                    'name_ar' => 'التسويق الرقمي',
-                    'slug' => 'digital-marketing',
-                    'image_url' => '/images/subcategories/digital-marketing.jpg'
-                ],
-                [
-                    'id' => '302',
-                    'name' => 'Social Media',
-                    'name_ar' => 'وسائل التواصل الاجتماعي',
-                    'slug' => 'social-media',
-                    'image_url' => '/images/subcategories/social-media.jpg'
-                ]
-            ]
-        ],
-        [
-            'id' => '4',
-            'name' => 'HR & Development',
-            'name_ar' => 'الموارد البشرية والتطوير',
-            'slug' => 'hr-development',
-            'image_url' => '/images/categories/hr.jpg',
-            'subcategories' => [
-                [
-                    'id' => '401',
-                    'name' => 'Talent Management',
-                    'name_ar' => 'إدارة المواهب',
-                    'slug' => 'talent-management',
-                    'image_url' => '/images/subcategories/talent-management.jpg'
-                ],
-                [
-                    'id' => '402',
-                    'name' => 'Employee Training',
-                    'name_ar' => 'تدريب الموظفين',
-                    'slug' => 'employee-training',
-                    'image_url' => '/images/subcategories/employee-training.jpg'
-                ]
-            ]
         ]
     ];
     sendResponse($mockCategories);

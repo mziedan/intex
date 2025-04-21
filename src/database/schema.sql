@@ -25,6 +25,7 @@ CREATE TABLE categories (
   name VARCHAR(100) NOT NULL,
   name_ar VARCHAR(100) NOT NULL,
   slug VARCHAR(100) NOT NULL UNIQUE,
+  image_url VARCHAR(255) NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -36,6 +37,7 @@ CREATE TABLE subcategories (
   name VARCHAR(100) NOT NULL,
   name_ar VARCHAR(100) NOT NULL,
   slug VARCHAR(100) NOT NULL,
+  image_url VARCHAR(255) NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE(category_id, slug),
@@ -104,49 +106,6 @@ CREATE TABLE registrations (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- Brochures table
-CREATE TABLE brochures (
-  id VARCHAR(36) PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  title_ar VARCHAR(255) NOT NULL,
-  file_path VARCHAR(255) NOT NULL,
-  file_size INT NOT NULL,
-  is_active BOOLEAN NOT NULL DEFAULT true,
-  uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  uploaded_by VARCHAR(36) NULL,
-  FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
-);
-
--- Instructors table
-CREATE TABLE instructors (
-  id VARCHAR(36) PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  name_ar VARCHAR(100) NOT NULL,
-  bio TEXT NULL,
-  bio_ar TEXT NULL,
-  photo_url VARCHAR(255) NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- Course Instructors junction table
-CREATE TABLE course_instructors (
-  course_id VARCHAR(36) NOT NULL,
-  instructor_id VARCHAR(36) NOT NULL,
-  PRIMARY KEY (course_id, instructor_id),
-  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
-  FOREIGN KEY (instructor_id) REFERENCES instructors(id) ON DELETE CASCADE
-);
-
--- Session Instructors junction table
-CREATE TABLE session_instructors (
-  session_id VARCHAR(36) NOT NULL,
-  instructor_id VARCHAR(36) NOT NULL,
-  PRIMARY KEY (session_id, instructor_id),
-  FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
-  FOREIGN KEY (instructor_id) REFERENCES instructors(id) ON DELETE CASCADE
-);
-
 -- Slider Images table
 CREATE TABLE slider_images (
   id VARCHAR(36) PRIMARY KEY,
@@ -204,19 +163,7 @@ CREATE TABLE custom_pages (
   content TEXT NOT NULL,
   content_ar TEXT NOT NULL,
   image VARCHAR(255) NULL,
-  created VARCHAR(10) NOT NULL,
   published BOOLEAN NOT NULL DEFAULT false,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- Statistics table
-CREATE TABLE statistics (
-  id VARCHAR(36) PRIMARY KEY,
-  title VARCHAR(100) NOT NULL,
-  title_ar VARCHAR(100) NOT NULL,
-  value INT NOT NULL,
-  icon VARCHAR(50) NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -247,19 +194,3 @@ VALUES (
   'We provide professional training courses led by industry experts. Our programs are designed to enhance skills and advance careers.',
   'نقدم دورات تدريبية احترافية بقيادة خبراء في المجال. برامجنا مصممة لتعزيز المهارات وتطوير المسارات المهنية.'
 );
-
--- Insert sample statistics
-INSERT INTO statistics (id, title, title_ar, value, icon)
-VALUES 
-(UUID(), 'Years Experience', 'سنوات الخبرة', 15, 'Calendar'),
-(UUID(), 'Courses Delivered', 'الدورات المقدمة', 230, 'BookOpen'),
-(UUID(), 'Students Trained', 'الطلاب المدربين', 4500, 'Users'),
-(UUID(), 'Countries Served', 'البلدان المخدومة', 25, 'Globe');
-
--- Sample Categories
-INSERT INTO categories (id, name, name_ar, slug)
-VALUES 
-(UUID(), 'Project Management', 'إدارة المشاريع', 'project-management'),
-(UUID(), 'Business Analysis', 'تحليل الأعمال', 'business-analysis'),
-(UUID(), 'IT & Development', 'تكنولوجيا المعلومات والتطوير', 'it-development'),
-(UUID(), 'Leadership', 'القيادة', 'leadership');

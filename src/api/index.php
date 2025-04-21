@@ -57,7 +57,7 @@ if (empty($path)) {
     
     switch ($resource) {
         case 'categories':
-            if (isset($segments[1])) {
+            if (isset($segments[1]) && $segments[1] === 'slug' && isset($segments[2])) {
                 // Category by slug
                 include 'categories/slug.php';
             } else {
@@ -80,9 +80,11 @@ if (empty($path)) {
                 } elseif ($segments[1] === 'search') {
                     // Search courses
                     include 'courses/search.php';
-                } else {
+                } elseif ($segments[1] === 'slug' && isset($segments[2])) {
                     // Course by slug
                     include 'courses/slug.php';
+                } else {
+                    sendError('Invalid courses endpoint', 404);
                 }
             } else {
                 // All courses
@@ -105,12 +107,8 @@ if (empty($path)) {
             break;
             
         case 'sliders':
-            if (isset($segments[1]) && $segments[1] === 'active') {
-                // Active sliders
-                include 'sliders/active.php';
-            } else {
-                sendError('Invalid sliders endpoint', 404);
-            }
+            // Active sliders
+            include 'sliders/active.php';
             break;
             
         case 'partners':
@@ -140,7 +138,7 @@ if (empty($path)) {
         case 'docs':
             // API documentation
             header('Content-Type: text/markdown');
-            readfile('../API_DOCUMENTATION.md');
+            readfile('API_DOCUMENTATION.md');
             exit;
             
         default:

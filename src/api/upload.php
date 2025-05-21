@@ -1,10 +1,9 @@
 
 <?php
 /**
- * Image Upload Handler API
+ * File Upload API
  * 
- * This script handles image uploads for the Excellence Training Platform.
- * It saves images to the specified folder and returns the URL.
+ * Handles POST requests to upload files
  */
 
 require_once 'config.php';
@@ -15,95 +14,110 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, X-Development');
 
-// Define allowed folders
-$allowedFolders = ['sliders', 'courses', 'categories', 'subcategories', 'partners', 'instructors'];
-
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// Check if request method is POST
+// Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
-    exit;
+    sendError('Method not allowed', 405);
 }
 
-// Check if file was submitted
-if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-    http_response_code(400);
-    echo json_encode(['error' => 'No image uploaded or upload error']);
-    exit;
+// Check if file was uploaded
+if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+    $error = isset($_FILES['file']) ? $_FILES['file']['error'] : 'No file uploaded';
+    sendError('File upload failed: ' . $error, 400);
 }
 
-// Check if folder was specified and is allowed
-if (!isset($_POST['folder']) || !in_array($_POST['folder'], $allowedFolders)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid or missing folder parameter']);
-    exit;
+// Get the path to save the file
+$path = isset($_POST['path']) ? sanitizeInput($_POST['path']) : 'general';
+
+// Validate path to prevent directory traversal
+if (strpos($path, '..') !== false || strpos($path, '/') === 0) {
+    sendError('Invalid upload path', 400);
 }
 
-// For development: Check the X-Development header
-if (isset($_SERVER['HTTP_X_DEVELOPMENT']) && $_SERVER['HTTP_X_DEVELOPMENT'] === 'true' || DEVELOPMENT_MODE) {
-    // Return a mock URL for development
-    $mockUrl = '/mock-uploads/' . $_POST['folder'] . '/' . uniqid() . '.jpg';
-    echo json_encode([
-        'success' => true,
-        'imageUrl' => $mockUrl
-    ]);
-    exit;
+// Valid paths
+$validPaths = ['categories', 'courses', 'sliders', 'partners', 'general'];
+if (!in_array($path, $validPaths)) {
+    $path = 'general'; // Default to general if invalid path
 }
-
-$folder = $_POST['folder'];
-$uploadDir = "../uploads/{$folder}/";
 
 // Create directory if it doesn't exist
-if (!file_exists($uploadDir)) {
-    mkdir($uploadDir, 0755, true);
+$uploadDir = UPLOADS_DIR . '/' . $path;
+if (!file_exists($uploadDir) && !is_dir($uploadDir)) {
+    if (!mkdir($uploadDir, 0755, true)) {
+        sendError('Failed to create upload directory', 500);
+    }
 }
 
 // Get file info
-$file = $_FILES['image'];
+$file = $_FILES['file'];
 $fileName = $file['name'];
-$fileType = $file['type'];
+$fileSize = $file['size'];
 $fileTmpName = $file['tmp_name'];
 $fileError = $file['error'];
-$fileSize = $file['size'];
+$fileType = $file['type'];
 
 // Validate file type
-$allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-if (!in_array($fileType, $allowedFileTypes)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.']);
-    exit;
+$allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'svg'];
+$fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+if (!in_array($fileExtension, $allowedExtensions)) {
+    sendError('Invalid file type. Allowed types: ' . implode(', ', $allowedExtensions), 400);
 }
 
-// Validate file size (max 2MB)
-$maxFileSize = 2 * 1024 * 1024; // 2MB
-if ($fileSize > $maxFileSize) {
-    http_response_code(400);
-    echo json_encode(['error' => 'File is too large. Maximum size is 2MB.']);
-    exit;
+// Generate unique filename
+$newFileName = generateUuid() . '.' . $fileExtension;
+$destination = $uploadDir . '/' . $newFileName;
+
+// Move the uploaded file
+if (!move_uploaded_file($fileTmpName, $destination)) {
+    sendError('Failed to move uploaded file', 500);
 }
 
-// Generate a unique filename
-$extension = pathinfo($fileName, PATHINFO_EXTENSION);
-$newFileName = uniqid() . '.' . $extension;
-$destination = $uploadDir . $newFileName;
+// Create public URL
+$baseUrl = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+$baseUrl .= $_SERVER['HTTP_HOST'];
 
-// Move the uploaded file to the destination
-if (move_uploaded_file($fileTmpName, $destination)) {
-    // Return the URL of the uploaded file
-    $baseUrl = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
-    $baseUrl .= $_SERVER['HTTP_HOST'];
-    $uploadUrl = '/uploads/' . $folder . '/' . $newFileName;
-    
-    echo json_encode([
-        'success' => true,
-        'imageUrl' => $uploadUrl
+// Determine the public path - this may need adjustment based on your server setup
+$uploadsDirName = basename(UPLOADS_DIR);
+$publicPath = "/uploads/{$path}/{$newFileName}";
+
+// In development mode, return mock URL
+if (defined('DEVELOPMENT_MODE') && DEVELOPMENT_MODE) {
+    sendResponse([
+        'url' => $publicPath,
+        'filename' => $newFileName,
+        'originalName' => $fileName
     ]);
-} else {
-    http_response_code(500);
-    echo json_encode(['error' => 'Failed to save the uploaded file']);
+}
+
+// In production, save file information to database
+try {
+    $conn = getDBConnection();
+    
+    // Insert file info into uploads table (you'd need to create this table)
+    $query = "INSERT INTO uploads (filename, original_name, file_path, mime_type, file_size) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('ssssi', $newFileName, $fileName, $publicPath, $fileType, $fileSize);
+    $stmt->execute();
+    
+    $conn->close();
+    
+    sendResponse([
+        'url' => $publicPath,
+        'filename' => $newFileName,
+        'originalName' => $fileName
+    ]);
+} catch (Exception $e) {
+    // Just log the error but still return the public path
+    error_log('Error saving file info to database: ' . $e->getMessage());
+    
+    sendResponse([
+        'url' => $publicPath,
+        'filename' => $newFileName,
+        'originalName' => $fileName
+    ]);
 }

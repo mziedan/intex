@@ -1,342 +1,423 @@
 
-# Excellence Training Platform API Documentation
+# Excellence Training API Documentation
 
-This file documents the RESTful API endpoints for communicating between the **frontend** and the **backend** services using a MySQL database.
+This document provides detailed information about the Excellence Training API, including endpoints, request methods, parameters, and response formats.
 
 ## Table of Contents
 
-- [General Principles](#general-principles)
-- [API Base URL](#api-base-url)
-- [Authentication](#authentication)
-- [Endpoints Overview](#endpoints-overview)
-- [Endpoints & Schemas](#endpoints--schemas)
-  - [Categories](#categories)
-  - [Courses](#courses)
-  - [Sessions](#sessions)
-  - [Registrations](#registrations)
-  - [Sliders](#sliders)
-  - [Partners](#partners)
-  - [Company Info](#company-info)
-  - [Custom Pages](#custom-pages)
-  - [Image Upload](#image-upload)
-- [Error Handling](#error-handling)
-- [Database Schema Reference](#database-schema-reference)
-- [Best Practices](#best-practices)
-- [Changelog](#changelog)
+1. [Introduction](#introduction)
+2. [API Base URL](#api-base-url)
+3. [Authentication](#authentication)
+4. [Common Response Format](#common-response-format)
+5. [Error Handling](#error-handling)
+6. [API Endpoints](#api-endpoints)
+   - [Categories](#categories)
+   - [Courses](#courses)
+   - [Sessions](#sessions)
+   - [Registrations](#registrations)
+   - [Sliders](#sliders)
+   - [Partners](#partners)
+   - [Company Info](#company-info)
+   - [Custom Pages](#custom-pages)
+   - [File Upload](#file-upload)
+7. [Database Schema](#database-schema)
+8. [Development Mode](#development-mode)
 
----
+## Introduction
 
-## General Principles
-
-- **All endpoints return JSON.**
-- **Authentication:** Currently, most endpoints are public; sensitive operations may require future authentication.
-- **Data source:** All endpoints communicate with a centralized MySQL database (see schema [`src/database/schema.sql`](../database/schema.sql)).
-
----
+The Excellence Training API is a RESTful API that provides access to training courses, categories, sessions, and other resources for the Excellence Training website. The API is designed to be simple, consistent, and easy to use.
 
 ## API Base URL
+
+The base URL for all API requests is:
+
+```
+http://your-domain.com/api
+```
+
+During development, you can use:
 
 ```
 http://localhost:5000/api
 ```
-*Set this value as `VITE_API_BASE_URL` in your frontend environment file.*
 
----
+## Authentication
 
-## Endpoints Overview
+Currently, the API does not require authentication for most endpoints. However, administrative endpoints will require authentication in future versions.
 
-| Entity        | Endpoint                 | Methods | Description                 |
-|---------------|--------------------------|---------|-----------------------------|
-| Categories    | `/categories`            | GET     | List all categories         |
-|               | `/categories/slug/:slug` | GET     | Get a category by slug      |
-| Courses       | `/courses`               | GET     | List all courses            |
-|               | `/courses/slug/:slug`    | GET     | Get a course by slug        |
-|               | `/courses/category/:id`  | GET     | Courses by category         |
-|               | `/courses/subcategory/:id` | GET   | Courses by subcategory      |
-|               | `/courses/featured`      | GET     | Featured courses            |
-|               | `/courses/search?q=...`  | GET     | Search courses (by keyword) |
-| Sessions      | `/sessions/upcoming/:id` | GET     | Upcoming sessions by course |
-| Registrations | `/registrations`         | POST    | Register a user for session |
-| Sliders       | `/sliders`               | GET     | List active sliders         |
-| Partners      | `/partners`              | GET     | List all active partners    |
-| Company Info  | `/company-info`          | GET     | Company core information    |
-| Custom Pages  | `/pages/:slug`           | GET     | Get custom page by slug     |
-| Upload        | `/upload`                | POST    | Upload an image             |
+## Common Response Format
 
----
+All API responses follow a consistent JSON format:
 
-## Endpoints & Schemas
+Successful response:
+```json
+{
+  "data": [
+    // Response data here
+  ],
+  "success": true
+}
+```
+
+Error response:
+```json
+{
+  "error": "Error message here",
+  "success": false,
+  "code": 404 // HTTP status code
+}
+```
+
+## Error Handling
+
+The API uses standard HTTP status codes to indicate the success or failure of a request:
+
+- `200 OK`: The request was successful
+- `400 Bad Request`: The request was invalid or missing required parameters
+- `404 Not Found`: The requested resource was not found
+- `405 Method Not Allowed`: The HTTP method is not supported for this endpoint
+- `500 Internal Server Error`: An error occurred on the server
+
+## API Endpoints
 
 ### Categories
 
-- **GET `/categories`**  
-  Returns all available categories.
-  **Response:**
-  ```json
-  [
+#### Get All Categories
+
+```
+GET /api/categories
+```
+
+Returns a list of all categories with their subcategories.
+
+**Response Example:**
+
+```json
+{
+  "data": [
     {
       "id": "1",
       "name": "Business",
       "name_ar": "الأعمال",
       "slug": "business",
-      "image_url": "...",
+      "image_url": "/images/categories/business.jpg",
       "subcategories": [
         {
           "id": "101",
+          "category_id": "1",
           "name": "Management",
           "name_ar": "الإدارة",
           "slug": "management",
-          "image_url": "..."
+          "image_url": null
+        },
+        {
+          "id": "102",
+          "category_id": "1",
+          "name": "Leadership",
+          "name_ar": "القيادة",
+          "slug": "leadership",
+          "image_url": null
         }
       ]
     }
-  ]
-  ```
+  ],
+  "success": true
+}
+```
 
-- **GET `/categories/slug/:slug`**  
-  Returns category info by unique slug.
-  **Response:**  
-  Same as above, for a category.
+#### Get Category by Slug
 
----
+```
+GET /api/categories/slug/{slug}
+```
+
+Returns a specific category and its subcategories by slug.
+
+**Parameters:**
+
+- `slug` (string, required): The slug of the category
+
+**Response Example:**
+
+```json
+{
+  "data": {
+    "id": "1",
+    "name": "Business",
+    "name_ar": "الأعمال",
+    "slug": "business",
+    "image_url": "/images/categories/business.jpg",
+    "subcategories": [
+      {
+        "id": "101",
+        "category_id": "1",
+        "name": "Management",
+        "name_ar": "الإدارة",
+        "slug": "management",
+        "image_url": null
+      }
+    ]
+  },
+  "success": true
+}
+```
 
 ### Courses
 
-- **GET `/courses`**  
-  Returns all courses.
-  **Response:**  
-  ```json
-  [
+#### Get All Courses
+
+```
+GET /api/courses
+```
+
+Returns a list of all active courses with their categories, subcategories, and upcoming sessions.
+
+**Response Example:**
+
+```json
+{
+  "data": [
     {
-      "id": "12",
-      "title": "Course Title",
-      "title_ar": "عنوان الدورة",
-      "slug": "course-title",
-      "short_description": "...",
-      "description": "...",
-      "description_ar": "...",
+      "id": "1",
+      "title": "Leadership Essentials",
+      "title_ar": "أساسيات القيادة",
+      "slug": "leadership-essentials",
+      "short_description": "Learn the core principles of effective leadership",
+      "short_description_ar": "تعلم المبادئ الأساسية للقيادة الفعالة",
       "price": 299.99,
       "discount_price": 249.99,
-      "image_url": "...",
       "duration": "4 weeks",
-      "level": "beginner",
+      "level": "Intermediate",
       "featured": true,
+      "status": "active",
+      "image_url": "/images/courses/leadership.jpg",
       "category_id": "1",
-      "subcategory_id": "10",
-      "category_name": "Category Name",
-      "category_slug": "category-slug",
-      "subcategory_name": "Subcategory Name",
-      "subcategory_slug": "subcategory-slug",
+      "subcategory_id": "102",
+      "category_name": "Business",
+      "category_name_ar": "الأعمال",
+      "category_slug": "business",
+      "subcategory_name": "Leadership",
+      "subcategory_name_ar": "القيادة",
+      "subcategory_slug": "leadership",
       "sessions": [
-        // See Sessions
+        {
+          "id": "101",
+          "start_date": "2023-07-15",
+          "end_date": "2023-08-12",
+          "location": "Online",
+          "location_ar": "عبر الإنترنت",
+          "capacity": 30,
+          "price": null,
+          "registration_count": 12
+        }
       ]
     }
-  ]
-  ```
+  ],
+  "success": true
+}
+```
 
-- **GET `/courses/slug/:slug`**  
-  Get detailed info about a single course (all fields).
-  **Response:** (See above, but only one object.)
+#### Get Featured Courses
 
-- **GET `/courses/category/:id`**  
-  All courses belonging to category (by category ID).
+```
+GET /api/courses/featured
+```
 
-- **GET `/courses/subcategory/:id`**  
-  All courses for a subcategory.
+Returns a list of featured courses with their upcoming sessions.
 
-- **GET `/courses/featured`**  
-  Only "featured" courses.
+#### Get Course by Slug
 
-- **GET `/courses/search?q=KEYWORD`**  
-  Search by keyword in the title or description.
+```
+GET /api/courses/slug/{slug}
+```
 
----
+Returns a specific course by slug, including all upcoming sessions.
+
+**Parameters:**
+
+- `slug` (string, required): The slug of the course
+
+#### Get Courses by Category
+
+```
+GET /api/courses/category/{categoryId}
+```
+
+Returns all courses in a specific category.
+
+**Parameters:**
+
+- `categoryId` (string, required): The ID of the category
+
+#### Get Courses by Subcategory
+
+```
+GET /api/courses/subcategory/{subcategoryId}
+```
+
+Returns all courses in a specific subcategory.
+
+**Parameters:**
+
+- `subcategoryId` (string, required): The ID of the subcategory
+
+#### Search Courses
+
+```
+GET /api/courses/search?q={query}
+```
+
+Searches for courses by title, description, or other relevant fields.
+
+**Parameters:**
+
+- `q` (string, required): The search query
 
 ### Sessions
 
-- **GET `/sessions/upcoming/:courseId`**  
-  Returns upcoming session(s) for a course.
-  **Response:**
-  ```json
-  [
-    {
-      "id": "s1",
-      "course_id": "12",
-      "start_date": "2024-06-01",
-      "end_date": "2024-06-30",
-      "location": "Online",
-      "location_ar": "عبر الإنترنت",
-      "capacity": 30,
-      "price": 299.99,
-      "status": "upcoming"
-    }
-  ]
-  ```
+#### Get Upcoming Sessions for Course
 
----
+```
+GET /api/sessions/upcoming/{courseId}
+```
+
+Returns all upcoming sessions for a specific course.
+
+**Parameters:**
+
+- `courseId` (string, required): The ID of the course
 
 ### Registrations
 
-- **POST `/registrations`**
-  Register a user for a specific course session.
-  **Request Body:**
-  ```json
-  {
-    "session_id": "s1",
-    "attendee_name": "John Doe",
-    "attendee_email": "john@example.com",
-    "company": "",
-    "job_title": "",
-    "phone": "",
-    "notes": ""
-  }
-  ```
-  **Response:**
-  ```json
-  {
-    "id": "r1",
-    "session_id": "s1",
+#### Create Registration
+
+```
+POST /api/registrations
+```
+
+Creates a new registration for a session.
+
+**Request Body Example:**
+
+```json
+{
+  "session_id": "101",
+  "attendee_name": "John Doe",
+  "attendee_email": "john@example.com",
+  "company": "ACME Inc",
+  "job_title": "Manager",
+  "phone": "+1234567890",
+  "notes": "Special dietary requirements"
+}
+```
+
+**Response Example:**
+
+```json
+{
+  "data": {
+    "id": "reg123",
+    "session_id": "101",
     "attendee_name": "John Doe",
     "attendee_email": "john@example.com",
     "payment_status": "pending",
-    "payment_amount": 299.99,
-    "created_at": "2024-06-15T10:30:00Z"
-  }
-  ```
-
----
+    "created_at": "2023-06-15T12:30:45Z"
+  },
+  "success": true
+}
+```
 
 ### Sliders
 
-- **GET `/sliders`**
-  Lists all "active" slider/banner images for hero or marketing sections.
-  **Response:**
-  ```json
-  [
-    {
-      "id": "sl1",
-      "title": "Slide Title",
-      "title_ar": "عنوان الشريحة",
-      "subtitle": "Slide subtitle",
-      "subtitle_ar": "العنوان الفرعي للشريحة",
-      "image_url": "...",
-      "button_text": "Click Here",
-      "button_text_ar": "انقر هنا",
-      "button_link": "/courses"
-    }
-  ]
-  ```
+#### Get Active Sliders
 
----
+```
+GET /api/sliders
+```
+
+Returns all active sliders for the homepage.
 
 ### Partners
 
-- **GET `/partners`**
-  Lists active partners.
-  **Response:**
-  ```json
-  [
-    {
-      "id": "p1",
-      "name": "Partner Name",
-      "logo_url": "...",
-      "website_url": "https://..."
-    }
-  ]
-  ```
+#### Get All Partners
 
----
+```
+GET /api/partners
+```
+
+Returns a list of all active partners.
 
 ### Company Info
 
-- **GET `/company-info`**
-  Returns core details for company profile, contact, and social info.
-  **Response:**
-  ```json
-  {
-    "id": "1",
-    "name": "Excellence Training",
-    "name_ar": "التميز للتدريب",
-    "description": "...",
-    "description_ar": "...",
-    "phone": "+1234567890",
-    "email": "info@example.com",
-    "address": "123 Main St, City",
-    "address_ar": "العنوان بالعربية",
-    "facebook": "...",
-    "twitter": "...",
-    "linkedin": "...",
-    "instagram": "...",
-    "map_location": "12.3456,78.9012"
-  }
-  ```
+#### Get Company Information
 
----
+```
+GET /api/company-info
+```
+
+Returns the company information used on the website.
 
 ### Custom Pages
 
-- **GET `/pages/:slug`**
-  Loads custom page content by slug.
-  **Response:**
-  ```json
-  {
-    "id": "p1",
-    "title": "About Us",
-    "title_ar": "من نحن",
-    "slug": "about-us",
-    "content": "Content of the page...",
-    "content_ar": "محتوى الصفحة...",
-    "image": "..."
-  }
-  ```
+#### Get Custom Page by Slug
 
----
+```
+GET /api/pages/{slug}
+```
 
-### Image Upload
+Returns a specific custom page by slug.
 
-- **POST `/upload`**
-  Upload images (form-data, with 'file' field).
-  **Response:**
-  ```json
-  {
-    "success": true,
-    "url": "/uploads/image123.jpg"
-  }
-  ```
+**Parameters:**
 
----
+- `slug` (string, required): The slug of the page
 
-## Error Handling
+### File Upload
 
-- All errors use non-2xx HTTP status and return an error JSON, e.g.:
-  ```json
-  {
-    "error": "Error detail message"
-  }
-  ```
+#### Upload Image
 
----
+```
+POST /api/upload
+```
 
-## Database Schema Reference
+Uploads an image file and returns the URL.
 
-See [`src/database/schema.sql`](../database/schema.sql) for the up-to-date MySQL database schema including table definitions and sample inserts.
+**Request Body:**
 
----
+Form data with:
+- `file` (file, required): The image file to upload
+- `path` (string, optional): The directory to save the file in (default: 'uploads')
 
-## Best Practices
+**Response Example:**
 
-- Always check for non-200 responses and handle errors gracefully in your frontend.
-- Use correct HTTP methods (`GET` for fetching, `POST` for creating).
-- For POST and PUT/PATCH requests, use `Content-Type: application/json` or `multipart/form-data` (for upload).
-- Keep your environment variables up to date with the correct API base URL.
+```json
+{
+  "data": {
+    "url": "https://your-domain.com/uploads/categories/image123.jpg"
+  },
+  "success": true
+}
+```
 
----
+## Database Schema
 
-## Changelog
+The API is backed by a MySQL database with the following main tables:
 
-**2024-04-21**  
-- Aligned API and documentation with custom backend implementation and MySQL
-- Deprecated Supabase integration; removed all supabase references
+- `users`: Website administrators and users
+- `categories`: Course categories
+- `subcategories`: Course subcategories
+- `courses`: Training courses
+- `sessions`: Scheduled sessions for courses
+- `registrations`: User registrations for sessions
+- `slider_images`: Homepage slider images
+- `partners`: Partner organizations
+- `company_info`: Company information
+- `custom_pages`: Custom website pages
 
----
+For the complete database schema, see the `database/schema.sql` file in the project repository.
+
+## Development Mode
+
+For development purposes, the API can be run in development mode by setting the `DEVELOPMENT_MODE` constant to `true` in the `config.php` file. In development mode, the API will return mock data instead of querying the database.
+
+This is useful for frontend development when the backend database is not yet set up or available.
 

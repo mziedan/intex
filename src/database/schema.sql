@@ -168,6 +168,19 @@ CREATE TABLE custom_pages (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- File Uploads table
+CREATE TABLE uploads (
+  id VARCHAR(36) PRIMARY KEY,
+  filename VARCHAR(255) NOT NULL,
+  original_name VARCHAR(255) NOT NULL,
+  file_path VARCHAR(255) NOT NULL,
+  mime_type VARCHAR(100) NOT NULL,
+  file_size INT NOT NULL,
+  uploaded_by VARCHAR(36) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
 -- Create indexes for performance
 CREATE INDEX idx_courses_category ON courses(category_id);
 CREATE INDEX idx_courses_subcategory ON courses(subcategory_id);
@@ -180,6 +193,7 @@ CREATE INDEX idx_course_featured ON courses(featured);
 CREATE INDEX idx_course_status ON courses(status);
 CREATE INDEX idx_slider_active ON slider_images(is_active, display_order);
 CREATE INDEX idx_partners_active ON partners(is_active, display_order);
+CREATE INDEX idx_uploads_filename ON uploads(filename);
 
 -- Insert initial admin user (password: admin123)
 INSERT INTO users (id, name, email, password_hash, role)
@@ -194,3 +208,163 @@ VALUES (
   'We provide professional training courses led by industry experts. Our programs are designed to enhance skills and advance careers.',
   'نقدم دورات تدريبية احترافية بقيادة خبراء في المجال. برامجنا مصممة لتعزيز المهارات وتطوير المسارات المهنية.'
 );
+
+-- Insert sample categories
+INSERT INTO categories (id, name, name_ar, slug, image_url)
+VALUES
+  (UUID(), 'Business', 'الأعمال', 'business', '/images/categories/business.jpg'),
+  (UUID(), 'Technology', 'التكنولوجيا', 'technology', '/images/categories/technology.jpg'),
+  (UUID(), 'Marketing', 'التسويق', 'marketing', '/images/categories/marketing.jpg');
+
+-- Get the IDs of the inserted categories
+SET @business_id = (SELECT id FROM categories WHERE slug = 'business' LIMIT 1);
+SET @technology_id = (SELECT id FROM categories WHERE slug = 'technology' LIMIT 1);
+SET @marketing_id = (SELECT id FROM categories WHERE slug = 'marketing' LIMIT 1);
+
+-- Insert sample subcategories
+INSERT INTO subcategories (id, category_id, name, name_ar, slug)
+VALUES
+  (UUID(), @business_id, 'Management', 'الإدارة', 'management'),
+  (UUID(), @business_id, 'Leadership', 'القيادة', 'leadership'),
+  (UUID(), @technology_id, 'Web Development', 'تطوير الويب', 'web-development'),
+  (UUID(), @technology_id, 'Data Science', 'علوم البيانات', 'data-science'),
+  (UUID(), @marketing_id, 'Digital Marketing', 'التسويق الرقمي', 'digital-marketing'),
+  (UUID(), @marketing_id, 'Social Media', 'وسائل التواصل الاجتماعي', 'social-media');
+
+-- Get the IDs of the inserted subcategories
+SET @management_id = (SELECT id FROM subcategories WHERE slug = 'management' AND category_id = @business_id LIMIT 1);
+SET @leadership_id = (SELECT id FROM subcategories WHERE slug = 'leadership' AND category_id = @business_id LIMIT 1);
+SET @webdev_id = (SELECT id FROM subcategories WHERE slug = 'web-development' AND category_id = @technology_id LIMIT 1);
+SET @datascience_id = (SELECT id FROM subcategories WHERE slug = 'data-science' AND category_id = @technology_id LIMIT 1);
+SET @digitalmarketing_id = (SELECT id FROM subcategories WHERE slug = 'digital-marketing' AND category_id = @marketing_id LIMIT 1);
+SET @socialmedia_id = (SELECT id FROM subcategories WHERE slug = 'social-media' AND category_id = @marketing_id LIMIT 1);
+
+-- Insert sample courses
+INSERT INTO courses (id, title, title_ar, slug, short_description, short_description_ar, description, description_ar, price, discount_price, duration, level, category_id, subcategory_id, featured, image_url, status)
+VALUES
+  (
+    UUID(), 
+    'Leadership Essentials', 
+    'أساسيات القيادة',
+    'leadership-essentials',
+    'Learn the core principles of effective leadership',
+    'تعلم المبادئ الأساسية للقيادة الفعالة',
+    'This comprehensive leadership course will teach you the skills needed to lead teams effectively in today\'s dynamic business environment.',
+    'ستعلمك دورة القيادة الشاملة هذه المهارات اللازمة لقيادة الفرق بفعالية في بيئة الأعمال الديناميكية اليوم.',
+    299.99,
+    249.99,
+    '4 weeks',
+    'intermediate',
+    @business_id,
+    @leadership_id,
+    TRUE,
+    '/images/courses/leadership.jpg',
+    'active'
+  ),
+  (
+    UUID(), 
+    'Python for Data Science', 
+    'بايثون لعلوم البيانات',
+    'python-data-science',
+    'Master Python programming for data analysis',
+    'إتقان برمجة بايثون لتحليل البيانات',
+    'This course covers Python programming with a focus on data science applications.',
+    'تغطي هذه الدورة برمجة Python مع التركيز على تطبيقات علوم البيانات.',
+    349.99,
+    299.99,
+    '6 weeks',
+    'beginner',
+    @technology_id,
+    @datascience_id,
+    TRUE,
+    '/images/courses/python.jpg',
+    'active'
+  );
+
+-- Get the IDs of the inserted courses
+SET @leadership_course_id = (SELECT id FROM courses WHERE slug = 'leadership-essentials' LIMIT 1);
+SET @python_course_id = (SELECT id FROM courses WHERE slug = 'python-data-science' LIMIT 1);
+
+-- Insert sample sessions
+INSERT INTO sessions (id, course_id, start_date, end_date, location, location_ar, capacity, status)
+VALUES
+  (
+    UUID(),
+    @leadership_course_id,
+    DATE_ADD(CURDATE(), INTERVAL 5 DAY),
+    DATE_ADD(CURDATE(), INTERVAL 33 DAY),
+    'Online',
+    'عبر الإنترنت',
+    30,
+    'upcoming'
+  ),
+  (
+    UUID(),
+    @leadership_course_id,
+    DATE_ADD(CURDATE(), INTERVAL 40 DAY),
+    DATE_ADD(CURDATE(), INTERVAL 68 DAY),
+    'Dubai, UAE',
+    'دبي، الإمارات العربية المتحدة',
+    15,
+    'upcoming'
+  ),
+  (
+    UUID(),
+    @python_course_id,
+    DATE_ADD(CURDATE(), INTERVAL 15 DAY),
+    DATE_ADD(CURDATE(), INTERVAL 57 DAY),
+    'Online',
+    'عبر الإنترنت',
+    25,
+    'upcoming'
+  );
+
+-- Insert sample slider images
+INSERT INTO slider_images (id, title, title_ar, subtitle, subtitle_ar, image_url, button_text, button_text_ar, button_link, display_order, is_active)
+VALUES
+  (
+    UUID(),
+    'Enhance Your Skills',
+    'طور مهاراتك',
+    'Join our world-class training programs to advance your career',
+    'انضم إلى برامج التدريب العالمية لتطوير حياتك المهنية',
+    '/images/slider/slide1.jpg',
+    'Explore Courses',
+    'استكشف الدورات',
+    '/courses',
+    1,
+    TRUE
+  ),
+  (
+    UUID(),
+    'Learn from Experts',
+    'تعلم من الخبراء',
+    'Our instructors bring years of industry experience',
+    'يجلب مدرسونا سنوات من الخبرة في المجال',
+    '/images/slider/slide2.jpg',
+    'Meet Our Team',
+    'تعرف على فريقنا',
+    '/about',
+    2,
+    TRUE
+  );
+
+-- Insert sample partners
+INSERT INTO partners (id, name, logo_url, website_url, display_order, is_active)
+VALUES
+  (
+    UUID(),
+    'TechCorp',
+    '/images/partners/techcorp.png',
+    'https://example.com/techcorp',
+    1,
+    TRUE
+  ),
+  (
+    UUID(),
+    'Global Solutions',
+    '/images/partners/globalsolutions.png',
+    'https://example.com/globalsolutions',
+    2,
+    TRUE
+  );

@@ -34,6 +34,7 @@ export interface Course {
   duration?: string;
   level?: string;
   featured?: boolean;
+  status?: string; // Added status field
   category_id?: string;
   subcategory_id?: string;
   category_name?: string;
@@ -46,13 +47,14 @@ export interface Course {
 export interface Session {
   id: string;
   course_id: string;
-  start_date: string | Date;
-  end_date: string | Date;
+  start_date: string; // Changed from string | Date to just string
+  end_date: string;   // Changed from string | Date to just string
   location?: string;
   location_ar?: string;
   capacity?: number;
   price?: number;
   status?: string;
+  registration_count?: number;
 }
 
 export interface Registration {
@@ -66,7 +68,7 @@ export interface Registration {
   notes?: string;
   payment_status?: string;
   payment_amount?: number;
-  created_at?: string | Date;
+  created_at?: string;
 }
 
 export interface Slider {
